@@ -1,0 +1,10 @@
+.next/
+node_modules/
+coverage/
+pnpm-lock.yaml
+next-env.d.ts
+
+# Vendored skills installed by `npx skills`. skills-lock.json stores a content
+# hash of each SKILL.md, so reformatting them would register as drift.
+.agents/
+.claude/skills/

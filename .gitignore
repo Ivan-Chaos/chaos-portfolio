@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code (machine-local MCP approvals; .mcp.json itself IS committed)
+.claude/settings.local.json
+
+# `npx skills` symlinks .agents/skills/* into here for Claude Code to discover.
+# core.symlinks=false on Windows, so git would commit these as duplicate files
+# that silently drift. .agents/skills/ + skills-lock.json are the source of
+# truth; restore the links with `npx skills install`.
+.claude/skills/
