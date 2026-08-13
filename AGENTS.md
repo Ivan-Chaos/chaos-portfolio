@@ -45,6 +45,32 @@ paying for a full `next build`. Both need `pnpm dev` running; `next dev` writes 
   `async` Server Components — those need E2E, which isn't set up yet. Don't write a unit test for
   an async server component and don't refactor one into a client component just to make it testable.
 
+## UI components — shadcn/ui
+
+Configured, with **no components installed yet**. `components.json` sets base `base-nova`: Base UI
+primitives, `neutral` base color, Lucide icons. See
+`docs/adr/0003-shadcn-ui-on-base-ui.md` before reconsidering the primitives base.
+
+- Add components with `pnpm dlx shadcn@latest add <name>`. They land in `components/ui/` and are
+  **yours** — vendored source, edit freely. Nothing updates them for you.
+- Look things up with `pnpm dlx shadcn@latest docs <component>`, and remember the official docs
+  serve Base UI examples at `/docs/components/base/<name>`. Third-party blocks written for **Radix**
+  need their primitive imports adapted — check what a snippet is built on before pasting it.
+- Use `cn()` from `@/lib/utils` to merge class names. It is `twMerge(clsx(...))`, so later
+  conflicting utilities win — that's how you make component classNames overridable.
+- **Style through the tokens, not raw colors.** `bg-background`, `text-foreground`, `bg-primary`,
+  `text-muted-foreground`, `border-border` and friends are defined in `app/globals.css`. Hard-coded
+  hexes and `bg-zinc-*` bypass theming and break dark mode.
+- `--radius` drives every `rounded-*` step via `calc()`. Change the one variable, not each usage.
+- `shadcn` is a **runtime dependency** — `app/globals.css` imports `shadcn/tailwind.css` for shared
+  keyframes and variants. Don't move it to devDependencies; the build needs it.
+
+**Dark mode is class-based, not OS-based.** `@custom-variant dark (&:is(.dark *))` means `dark:`
+utilities only apply under an element carrying `.dark`. Nothing sets that class yet, so the site
+currently renders light regardless of OS preference — `shadcn init` replaced the original
+`@media (prefers-color-scheme: dark)` block. A theme provider (`next-themes`) is the standard fix
+and hasn't been added.
+
 ## Spec-driven development
 
 Work flows spec-first. Nothing substantial gets built straight from a prompt.
