@@ -2,8 +2,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * The card carries the system's signature treatment: corner ticks rather than a
- * closed box. `ring-1 ring-foreground/10` from upstream is gone — a translucent
- * ring is a soft edge, and this direction does not have soft edges.
+ * closed box. Upstream's translucent one-pixel ring is gone — a ring at 10%
+ * opacity is a soft edge, and this direction does not have soft edges.
  *
  * `bordered` is available for cards that genuinely need enclosing (a card inside
  * a scrolling list, where ticks alone lose the boundary). Ticks are the default
