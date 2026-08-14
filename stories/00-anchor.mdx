@@ -1,0 +1,62 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Foundation/Anchor" />
+
+# Anchor
+
+The whole system commits to one aesthetic direction: **Industrial** — the register of a
+ground-station telemetry readout.
+
+Space is the subject of this site, and the reflex for space is a nebula mesh gradient in violet and
+cyan with neon glow. That was ruled out deliberately. This direction gets the subject from
+**structure and restraint** instead: monospace type, a warm-black ground, flat 1px rules where other
+systems would reach for a shadow, and a single amber signal doing the work that a six-color accent
+palette usually spreads thin.
+
+## The rules
+
+These are not stylistic suggestions. They are the tokens the anchor is made of, and drifting outside
+them means the anchor stopped holding.
+
+|               |                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Surface**   | Warm-black `#0B0C0A`, not a cold grey and not blue-tinted. The neutral ramp carries a trace of green-yellow chroma taken from that anchor. |
+| **Type**      | Monospace for display _and_ body. JetBrains Mono is the default UI face.                                                                   |
+| **Signal**    | One decorative accent: amber `#FFB800`.                                                                                                    |
+| **Structure** | Flat. 1px borders instead of shadows — the entire `--shadow-*` scale resolves to `0 0 #0000`.                                              |
+| **Corners**   | Square. `--radius: 0`.                                                                                                                     |
+| **Numerals**  | `tabular-nums` globally, so figures align in every context and not just in tables.                                                         |
+
+## The differentiator
+
+**Corner ticks.** A surface is not drawn as a closed box. It is registered at its four corners by
+short hairline brackets, the way an instrument panel or a crop mark marks a frame without enclosing
+it. See **Foundation → Surfaces**.
+
+## The one deliberate deviation
+
+Industrial specifies monospace for body text as well as display. This system breaks that in exactly
+one place: **long-form prose sets in Archivo**, a proportional grotesk.
+
+The reason is readability at length. Monospace paragraphs read measurably slower and consume roughly
+15% more horizontal space at the same size, which is a real cost on a site meant to carry writing.
+Archivo's condensed width additionally covers oversized section figures.
+
+The deviation is scoped tightly — Archivo is not available to buttons, labels, inputs, table
+headers, badges, or any other UI chrome, and the `prose-face` utility is the only sanctioned entry
+point. It is recorded in `docs/adr/0004-industrial-anchor.md` so that a future reader finds a
+decision rather than what looks like drift.
+
+## Where the rules live
+
+`app/globals.css` is the single source. Its header comment states the same six rules, so they are
+visible at the point of change rather than only here.
+
+Two levers do most of the enforcement:
+
+- `--radius: 0` collapses all seven `rounded-*` steps at once, so vendored shadcn components arrive
+  square without being edited.
+- Overriding the `--shadow-*` scale to transparent kills every `shadow-xs` / `shadow-sm` baked into
+  those same vendored files, also without edits.
+
+That is why retheming ~60 third-party components is tractable rather than a rewrite.

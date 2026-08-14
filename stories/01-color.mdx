@@ -1,0 +1,216 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { ContrastTable, Ramp, Row, Swatch, ThemeSplit } from "./foundation/kit";
+
+<Meta title="Foundation/Color" />
+
+# Color
+
+Two layers. **Raw ramps** are named scales with no meaning attached. **Semantic aliases** point at
+them and are redefined per theme. Components only ever reference the semantic layer — reaching for
+`--ink-07` in a component is the bug this split exists to prevent.
+
+Every value below is measured, not asserted. The hex under each swatch and every ratio in the tables
+is read from the live computed style, so retuning a ramp updates these pages and can turn them red.
+
+## The ramps
+
+The neutral ramp is keyed to the `#0B0C0A` anchor and carries its hue (128.82) at very low chroma —
+warm-neutral, deliberately not a cold grey and not blue-tinted.
+
+<ThemeSplit>
+  <Ramp
+    label="ink — 00 sunken through 13 raised-light"
+    tokens={[
+      "--ink-00",
+      "--ink-01",
+      "--ink-02",
+      "--ink-03",
+      "--ink-04",
+      "--ink-05",
+      "--ink-06",
+      "--ink-07",
+      "--ink-08",
+      "--ink-09",
+      "--ink-10",
+      "--ink-11",
+      "--ink-12",
+      "--ink-13",
+    ]}
+  />
+</ThemeSplit>
+
+The hue ramps are functional, not decorative. Amber is the one accent the system spends; red and
+green exist so that validation errors and destructive actions are distinguishable, and they are not
+available for decoration.
+
+<ThemeSplit>
+  <div className="space-y-5">
+    <Ramp
+      label="amber — the signal"
+      tokens={[
+        "--amber-text",
+        "--amber-dim",
+        "--amber-mid",
+        "--amber-signal",
+        "--amber-bright",
+      ]}
+    />
+    <Ramp
+      label="red — danger"
+      tokens={["--red-text", "--red-signal", "--red-bright"]}
+    />
+    <Ramp
+      label="green — success"
+      tokens={["--green-text", "--green-signal", "--green-deep"]}
+    />
+  </div>
+</ThemeSplit>
+
+## Surfaces
+
+Three planes, flat. Separation comes from a hairline and a solid fill, never a blur.
+
+<ThemeSplit>
+  <Row>
+    <Swatch token="--background" label="background" />
+    <Swatch
+      token="--surface-raised"
+      label="surface-raised"
+      note="cards, overlays"
+    />
+    <Swatch
+      token="--surface-sunken"
+      label="surface-sunken"
+      note="insets, wells"
+    />
+    <Swatch token="--muted" label="muted" />
+    <Swatch token="--accent" label="accent" note="hover fills" />
+  </Row>
+</ThemeSplit>
+
+## Signal and status
+
+<ThemeSplit>
+  <Row>
+    <Swatch token="--signal" label="signal" note="fill" />
+    <Swatch token="--signal-text" label="signal-text" note="text/icon" />
+    <Swatch token="--signal-edge" label="signal-edge" note="borders" />
+    <Swatch token="--danger" label="danger" />
+    <Swatch token="--success" label="success" />
+  </Row>
+</ThemeSplit>
+
+### Why amber needs three tokens instead of one
+
+This is the detail that decides whether the palette survives accessibility, so it is worth stating
+plainly.
+
+Amber as a **fill** behaves identically in both themes: `#FFB800` under near-black ink measures
+11.42:1 either way. Amber as **text on the ground** does not — `#FFB800` on the light ground is
+**1.57:1**, a hard failure. The instinct to pair a colored fill with white text also fails here:
+light ink on amber is 1.58:1.
+
+So the system splits the job three ways, and light mode drops each hue to a solved value:
+
+- `--signal` — the fill. Same in both themes, always under `--signal-foreground` (near-black ink).
+- `--signal-edge` — borders and focus rings. Only needs 3:1, so it can stay more saturated.
+- `--signal-text` — the only one safe at prose size in both themes.
+
+The same pattern applies to red and green. In practical terms: **amber sets marks and fills; it does
+not set paragraphs.**
+
+## Measured contrast
+
+Text pairs are held to 4.5:1 (WCAG 1.4.3). Borders and focus rings are held to 3:1 (WCAG 1.4.11),
+which is the correct threshold for something that only has to be distinguishable.
+
+<ThemeSplit>
+  <ContrastTable
+    pairs={[
+      {
+        label: "foreground on background",
+        fg: "--foreground",
+        bg: "--background",
+        need: 4.5,
+      },
+      {
+        label: "muted-foreground on background",
+        fg: "--muted-foreground",
+        bg: "--background",
+        need: 4.5,
+      },
+      {
+        label: "signal-text on background",
+        fg: "--signal-text",
+        bg: "--background",
+        need: 4.5,
+      },
+      {
+        label: "signal-foreground on signal",
+        fg: "--signal-foreground",
+        bg: "--signal",
+        need: 4.5,
+      },
+      {
+        label: "danger-text on background",
+        fg: "--danger-text",
+        bg: "--background",
+        need: 4.5,
+      },
+      {
+        label: "danger-foreground on danger",
+        fg: "--danger-foreground",
+        bg: "--danger",
+        need: 4.5,
+      },
+      {
+        label: "success-text on background",
+        fg: "--success-text",
+        bg: "--background",
+        need: 4.5,
+      },
+      {
+        label: "success-foreground on success",
+        fg: "--success-foreground",
+        bg: "--success",
+        need: 4.5,
+      },
+      {
+        label: "foreground on card",
+        fg: "--card-foreground",
+        bg: "--card",
+        need: 4.5,
+      },
+      {
+        label: "control border on background",
+        fg: "--control",
+        bg: "--background",
+        need: 3,
+      },
+      {
+        label: "focus ring on background",
+        fg: "--ring",
+        bg: "--background",
+        need: 3,
+      },
+    ]}
+  />
+</ThemeSplit>
+
+### Hairlines are exempt, and that is why `control` exists
+
+`--hairline` sits around 1.5:1 against the ground in both themes. That is intentional and it is not
+a violation: WCAG 1.4.11 governs visual information needed to _identify a component or its state_,
+which a decorative divider is not.
+
+An input's border is a different matter — it is what identifies the input as an input — so that
+border must use `--control`, which is solved to 3:1 and appears in the table above. The two tokens
+are not interchangeable, and picking `--hairline` for a form control is a real accessibility bug
+rather than a style preference.
+
+## Enforcement
+
+These tables are documentation. The actual gate is `@storybook/addon-a11y` with
+`parameters.a11y.test: "error"` in `.storybook/preview.tsx`, combined with two Vitest browser
+projects that run every story in both themes. A contrast regression fails `pnpm check` rather than
+waiting to be noticed.

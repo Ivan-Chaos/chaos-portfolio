@@ -4,46 +4,154 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================================
+   INDUSTRIAL — ground-station telemetry readout.
+   See docs/adr/0004-industrial-anchor.md for the direction and its one
+   deliberate deviation.
+
+   The rules this file encodes, so they are not re-litigated per component:
+
+   1. Monospace is the default UI face. Proportional Archivo is for long-form
+      prose ONLY (the recorded deviation). Archivo's condensed width is for
+      section figures only.
+   2. Square corners. `--radius: 0`. One lever collapses every `rounded-*`.
+   3. No shadows. The whole `--shadow-*` scale is neutralised. Separation comes
+      from a 1px hairline plus a solid surface, never from a blur.
+   4. ONE decorative signal: amber. Status hues (red/green) are FUNCTIONAL only
+      — validation, destructive actions, alerts, toasts. Never decoration.
+   5. Every hue FILL carries dark ink. Measured against --ink-01: amber 11.42:1,
+      red 5.58:1, green 11.87:1. Light ink on amber is 1.58:1, so the "white
+      text on a colored fill" reflex is a contrast failure here.
+   6. Hue as TEXT is theme-dependent, because #FFB800 on the light ground is
+      1.57:1. Light mode drops to solved AA values. Amber sets marks and fills;
+      it does not set paragraphs.
+   ========================================================================= */
+
 @theme inline {
+  /* ── Semantic colour surface (shadcn names — DO NOT RENAME) ─────────────
+     Vendored shadcn components reference these keys by name. Retheme the
+     values freely; renaming breaks every future `shadcn add`. */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* `shadcn init` wrote `--font-sans: var(--font-sans)` here, which is
-     self-referential: nothing defines `--font-sans`, and shadcn/tailwind.css
-     ships no font tokens. app/layout.tsx exposes Geist as `--font-geist-sans`,
-     so point at that or the new `html { @apply font-sans }` rule resolves to
-     nothing and Geist loads without ever being applied. */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ── Industrial additions ───────────────────────────────────────────────
+     `surface-*` are the three planes. `hairline` is decorative and may sit
+     below 3:1; `control` identifies an interactive boundary and is solved to
+     3:1 (WCAG 1.4.11), so an input border must use `control`, not `hairline`. */
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-control: var(--control);
+  --color-control-hover: var(--control-hover);
+
+  /* Signal — the one decorative accent. `signal` fills, `signal-edge` borders,
+     `signal-text` is the only one safe for prose-size text in both themes. */
+  --color-signal: var(--signal);
+  --color-signal-foreground: var(--signal-foreground);
+  --color-signal-edge: var(--signal-edge);
+  --color-signal-text: var(--signal-text);
+  --color-signal-hover: var(--signal-hover);
+
+  /* Status — functional only. */
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-text: var(--danger-text);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-text: var(--success-text);
+
+  /* ── Typefaces ──────────────────────────────────────────────────────────
+     Mono is the default UI face; `--default-font-family` makes that the
+     document default rather than relying on a utility class. */
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-condensed: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --default-font-family: var(--font-mono);
+  --default-mono-font-family: var(--font-mono);
+
+  /* ── Type scale ─────────────────────────────────────────────────────────
+     Sizes keep Tailwind's familiar values so `text-sm` still means what it
+     reads as. Line-heights and tracking are retuned for monospace: mono runs
+     ~15% wider than a grotesk, so display steps need negative tracking and
+     body steps need a little more leading. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1.45;
+  --text-2xs--letter-spacing: 0.02em;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.5;
+  --text-xs--letter-spacing: 0.01em;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.55;
+  --text-sm--letter-spacing: 0.005em;
+  --text-base: 0.9375rem;
+  --text-base--line-height: 1.6;
+  --text-base--letter-spacing: 0em;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.55;
+  --text-lg--letter-spacing: -0.005em;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.4;
+  --text-xl--letter-spacing: -0.01em;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.3;
+  --text-2xl--letter-spacing: -0.015em;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 1.2;
+  --text-3xl--letter-spacing: -0.02em;
+  --text-4xl: 2.375rem;
+  --text-4xl--line-height: 1.1;
+  --text-4xl--letter-spacing: -0.025em;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1.05;
+  --text-5xl--letter-spacing: -0.03em;
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 1;
+  --text-6xl--letter-spacing: -0.035em;
+  --text-7xl: 4.75rem;
+  --text-7xl--line-height: 0.95;
+  --text-7xl--letter-spacing: -0.04em;
+
+  /* Uppercase mono needs positive tracking to stay readable. `label` is for
+     field labels and table headers, `kicker` for section markers. */
+  --tracking-label: 0.08em;
+  --tracking-kicker: 0.16em;
+
+  /* ── Radius ─────────────────────────────────────────────────────────────
+     Industrial is square. `--radius: 0` in :root collapses all seven steps,
+     which is what lets vendored shadcn components go square untouched. */
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -51,85 +159,365 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ── Shadows: neutralised ───────────────────────────────────────────────
+     Overriding the scale here kills every `shadow-xs` / `shadow-sm` baked
+     into vendored components globally, with no file edits. Overlays separate
+     via solid surface + hairline instead. */
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
+  --inset-shadow-2xs: 0 0 #0000;
+  --inset-shadow-xs: 0 0 #0000;
+  --inset-shadow-sm: 0 0 #0000;
+
+  /* ── Motion ─────────────────────────────────────────────────────────────
+     Mechanical, not springy. `ease-snap` steps through discrete frames so a
+     state change reads as a relay closing rather than a glide. */
+  --duration-instant: 60ms;
+  --duration-fast: 110ms;
+  --duration-base: 180ms;
+  --duration-slow: 280ms;
+  --ease-snap: steps(3, end);
+  --ease-mech-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-mech-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --default-transition-duration: 110ms;
+  --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ============================================================================
+   LAYER 1 — raw ramps. Theme-independent. Components must never reference
+   these directly; they exist so the semantic layer below has something honest
+   to point at. Every value is measured, not eyeballed — the hex in each
+   comment is the actual sRGB result of the oklch on that line.
+   ========================================================================= */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Warm-neutral ink, hue 128.82 taken from the #0B0C0A anchor. Not a cold
+     grey, and deliberately not blue-tinted. */
+  --ink-00: oklch(0.115 0.0035 128.82); /* #050504 */
+  --ink-01: oklch(0.145 0.0035 128.82); /* #0A0A09 */
+  --ink-02: oklch(0.196 0.0035 128.82); /* #151514 */
+  --ink-03: oklch(0.253 0.0035 128.82); /* #222321 */
+  --ink-04: oklch(0.318 0.0035 128.82); /* #323331 */
+  --ink-05: oklch(0.396 0.0035 128.82); /* #464745 */
+  --ink-06: oklch(0.487 0.0035 128.82); /* #5F605E */
+  --ink-07: oklch(0.585 0.0035 128.82); /* #7B7C7A */
+  --ink-08: oklch(0.673 0.0035 128.82); /* #959694 */
+  --ink-09: oklch(0.762 0.0035 128.82); /* #B1B2B0 */
+  --ink-10: oklch(0.846 0.0035 128.82); /* #CCCDCA */
+  --ink-11: oklch(0.9296 0.0035 128.82); /* #E7E8E6 */
+  --ink-12: oklch(0.968 0.0035 128.82); /* #F4F5F2 */
+  --ink-13: oklch(0.9905 0.0035 128.82); /* #FBFCFA */
+
+  /* Amber — the one decorative signal, anchored at #FFB800 (hue 80.53).
+     The hue rotates toward orange as the ramp darkens. This is not decoration:
+     a yellow-amber darkened at constant hue reads olive-brown and stops looking
+     related to the anchor at all, so the darker steps shift to hue 65 to stay
+     recognisably the same family. Radix's amber scale solves it the same way. */
+  --amber-text: oklch(
+    0.5205 0.116 65
+  ); /* #965802 — 4.61:1 on the sunken surface */
+  --amber-dim: oklch(0.6305 0.14 65); /* #C27406 — 3.31:1 non-text on light */
+  --amber-mid: oklch(0.74 0.158 72); /* #E79703 */
+  --amber-signal: oklch(0.8272 0.1711 80.53); /* #FFB800 — the anchor */
+  --amber-bright: oklch(0.88 0.152 82); /* #FFCD51 */
+
+  /* Danger — functional only. */
+  --red-text: oklch(
+    0.5405 0.22 28.66
+  ); /* #D00409 — 4.60:1 on the sunken surface */
+  --red-signal: oklch(0.6542 0.2321 28.66); /* #FF3B30 — the anchor */
+  --red-bright: oklch(
+    0.71 0.2 28.66
+  ); /* #FF6454 — 6.27:1 on the raised surface */
+
+  /* Success — functional only. */
+  --green-text: oklch(
+    0.5 0.132 151.77
+  ); /* #01773A — 4.60:1 on the sunken surface */
+  --green-signal: oklch(0.8099 0.2141 151.77); /* #00E676 — the anchor */
+  --green-deep: oklch(0.63 0.17 151.77); /* #00A551 */
 }
 
+/* ============================================================================
+   LAYER 2 — semantic aliases. LIGHT theme.
+   The anchor is dark-native, so this is the mode that has to be watched. Every
+   hue used as text drops to its solved AA value here.
+   ========================================================================= */
+:root {
+  --radius: 0rem;
+
+  --background: var(--ink-12);
+  --foreground: var(--ink-01);
+  --surface: var(--ink-12);
+  --surface-raised: var(--ink-13);
+  --surface-sunken: oklch(0.928 0.0035 128.82); /* #E6E8E5 */
+
+  --card: var(--ink-13);
+  --card-foreground: var(--ink-01);
+  --popover: var(--ink-13);
+  --popover-foreground: var(--ink-01);
+
+  /* `primary` is ink, not amber. Amber is the accent, and a page of amber
+     buttons would spend the signal on nothing. */
+  --primary: var(--ink-01);
+  --primary-foreground: var(--ink-12);
+  --secondary: oklch(0.928 0.0035 128.82);
+  --secondary-foreground: var(--ink-01);
+  --muted: oklch(0.928 0.0035 128.82);
+  --muted-foreground: var(--ink-06); /* 5.13:1 worst case */
+  --accent: var(--ink-11);
+  --accent-foreground: var(--ink-01);
+
+  /* Decorative vs control-identifying. These are not interchangeable. */
+  --hairline: var(--ink-10); /* 1.45:1 — dividers only */
+  --hairline-strong: var(--ink-09);
+  --control: var(--ink-07); /* 3.83:1 — input/control borders */
+  --control-hover: var(--ink-05);
+  --border: var(--ink-10);
+  --input: var(--ink-07);
+  --ring: var(--amber-dim); /* 3.31:1 non-text */
+
+  --signal: var(--amber-signal); /* fill — same in both themes */
+  --signal-foreground: var(--ink-01); /* 11.42:1 */
+  --signal-hover: var(--amber-mid);
+  --signal-edge: var(--amber-dim); /* 3.31:1 */
+  --signal-text: var(--amber-text); /* 4.61:1 worst case */
+
+  --danger: var(--red-signal);
+  --danger-foreground: var(--ink-01); /* 5.58:1 */
+  --danger-text: var(--red-text); /* 4.60:1 worst case */
+  --destructive: var(--red-signal);
+  --destructive-foreground: var(--ink-01);
+
+  --success: var(--green-signal);
+  --success-foreground: var(--ink-01); /* 11.87:1 */
+  --success-text: var(--green-text); /* 4.60:1 worst case */
+
+  /* Corner ticks — the signature surface treatment. */
+  --tick-len: 0.625rem;
+  --tick-w: 1px;
+  --tick-color: var(--ink-07);
+
+  --chart-1: var(--amber-signal);
+  --chart-2: var(--ink-05);
+  --chart-3: var(--amber-text);
+  --chart-4: var(--ink-08);
+  --chart-5: var(--ink-03);
+
+  --sidebar: var(--ink-13);
+  --sidebar-foreground: var(--ink-01);
+  --sidebar-primary: var(--amber-signal);
+  --sidebar-primary-foreground: var(--ink-01);
+  --sidebar-accent: var(--ink-11);
+  --sidebar-accent-foreground: var(--ink-01);
+  --sidebar-border: var(--ink-10);
+  --sidebar-ring: var(--amber-dim);
+}
+
+/* ============================================================================
+   LAYER 2 — semantic aliases. DARK theme (the anchor's native register).
+   ========================================================================= */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(
+    0.1523 0.0045 128.82
+  ); /* #0B0C0A — the warm-black anchor */
+  --foreground: var(--ink-11);
+  --surface: oklch(0.1523 0.0045 128.82);
+  --surface-raised: var(--ink-02);
+  --surface-sunken: var(--ink-00);
+
+  --card: var(--ink-02);
+  --card-foreground: var(--ink-11);
+  --popover: var(--ink-02);
+  --popover-foreground: var(--ink-11);
+
+  --primary: var(--ink-11);
+  --primary-foreground: var(--ink-01);
+  --secondary: var(--ink-03);
+  --secondary-foreground: var(--ink-11);
+  --muted: var(--ink-03);
+  /* ink-08, not ink-07. ink-07 measures 4.67:1 on the page ground but only
+     4.36:1 on `--card` — and muted text lives on cards constantly. Solved
+     against the lightest dark surface, not the ground. */
+  --muted-foreground: var(--ink-08); /* 6.15:1 worst case */
+  --accent: var(--ink-03);
+  --accent-foreground: var(--ink-11);
+
+  --hairline: var(--ink-04); /* dividers only */
+  --hairline-strong: var(--ink-05);
+  --control: var(--ink-06); /* 3.10:1 */
+  --control-hover: var(--ink-08);
+  --border: var(--ink-04);
+  --input: var(--ink-06);
+  --ring: var(--amber-signal); /* 11.30:1 */
+
+  /* Amber needs no darkening here — it is 11.30:1 on the warm-black ground,
+     so the same value serves fill, edge and text. */
+  --signal: var(--amber-signal);
+  --signal-foreground: var(--ink-01);
+  --signal-hover: var(--amber-bright);
+  --signal-edge: var(--amber-signal);
+  --signal-text: var(--amber-signal);
+
+  --danger: var(--red-signal);
+  --danger-foreground: var(--ink-01);
+  --danger-text: var(--red-bright); /* 6.27:1 worst case */
+  --destructive: var(--red-signal);
+  --destructive-foreground: var(--ink-01);
+
+  --success: var(--green-signal);
+  --success-foreground: var(--ink-01);
+  --success-text: var(--green-signal); /* 10.95:1 worst case */
+
+  --tick-color: var(--ink-06);
+
+  --chart-1: var(--amber-signal);
+  --chart-2: var(--ink-09);
+  --chart-3: var(--amber-mid);
+  --chart-4: var(--ink-06);
+  --chart-5: var(--ink-11);
+
+  --sidebar: var(--ink-02);
+  --sidebar-foreground: var(--ink-11);
+  --sidebar-primary: var(--amber-signal);
+  --sidebar-primary-foreground: var(--ink-01);
+  --sidebar-accent: var(--ink-03);
+  --sidebar-accent-foreground: var(--ink-11);
+  --sidebar-border: var(--ink-04);
+  --sidebar-ring: var(--amber-signal);
 }
 
+/* ============================================================================
+   UTILITIES
+   ========================================================================= */
+
+/* The differentiator. Four hairline brackets registering a frame at its
+   corners, the way an instrument panel or a crop mark does — instead of a
+   closed box. Eight background layers, so it needs no extra DOM and no
+   pseudo-elements, and it composes with any background-color.
+   Override per element with `[--tick-len:1rem]` or `[--tick-color:var(--signal)]`. */
+@utility corner-ticks {
+  background-image:
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color));
+  background-position:
+    left top,
+    left top,
+    right top,
+    right top,
+    left bottom,
+    left bottom,
+    right bottom,
+    right bottom;
+  background-repeat: no-repeat;
+  background-size:
+    var(--tick-len) var(--tick-w),
+    var(--tick-w) var(--tick-len),
+    var(--tick-len) var(--tick-w),
+    var(--tick-w) var(--tick-len),
+    var(--tick-len) var(--tick-w),
+    var(--tick-w) var(--tick-len),
+    var(--tick-len) var(--tick-w),
+    var(--tick-w) var(--tick-len);
+}
+
+/* Uppercase mono label — field labels, table headers, section kickers. Applied
+   often enough across the kit to earn a utility rather than four repeated
+   classes. */
+@utility label-caps {
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-label);
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+
+/* Long-form prose is the one place the proportional face is allowed. Pairing
+   the face switch with the size and leading change keeps the deviation in a
+   single place instead of scattered across components. */
+@utility prose-face {
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  letter-spacing: 0;
+  line-height: 1.7;
+}
+
+/* Oversized condensed figures — section numbering only. */
+@utility figure-condensed {
+  font-family: var(--font-condensed);
+  font-stretch: 62%;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================================================
+   BASE
+   ========================================================================= */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+
+  html {
+    /* Industrial mandate: figures align in every context, not just tables. */
+    font-variant-numeric: tabular-nums;
+    /* JetBrains Mono ships code ligatures. `!=` becoming a glyph is right in a
+       code block and wrong in a button label, so they are off by default and
+       re-enabled only by CodeBlock. */
+    font-variant-ligatures: none;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
-  html {
-    @apply font-sans;
+
+  /* Next 16 no longer overrides a global smooth scroll-behavior on navigation,
+     so opting in requires data-scroll-behavior="smooth" on <html> as well.
+     See node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md */
+  @media (prefers-reduced-motion: no-preference) {
+    html[data-scroll-behavior="smooth"] {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* One focus treatment for the whole kit: a 2px signal outline, offset so it
+     reads clearly against a square corner. Solved to 11.30:1 in dark and
+     3.89:1 in light, both above the 3:1 non-text threshold. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Honour the OS setting rather than animating regardless. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Monospace numerals in form controls, and square spinners to match. */
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+    font-variant-numeric: inherit;
   }
 }

@@ -1,0 +1,122 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { ThemeSplit } from "./foundation/kit";
+
+<Meta title="Foundation/Surfaces" />
+
+# Surfaces, borders and ticks
+
+Industrial is flat. There is no elevation model, because there are no shadows to build one from —
+the whole `--shadow-*` scale resolves to `0 0 #0000`. Depth is expressed by a change of surface plus
+a 1px rule, and nothing else.
+
+## No shadows, deliberately
+
+Neutralising the scale in tokens rather than avoiding the utilities by hand is what makes the
+vendored shadcn components arrive flat without being edited. `shadow-sm` still parses, still applies,
+and resolves to transparent.
+
+<ThemeSplit>
+  <div className="flex gap-4">
+    <div className="border border-hairline bg-surface-raised p-4 text-xs shadow-lg">
+      shadow-lg applied
+    </div>
+    <div className="border border-hairline bg-surface-raised p-4 text-xs">
+      no shadow class
+    </div>
+  </div>
+</ThemeSplit>
+
+Those two are identical, which is the point.
+
+## Two border tokens that are not interchangeable
+
+<ThemeSplit>
+  <div className="space-y-4 text-xs">
+    <div>
+      <p className="mb-2 label-caps text-muted-foreground">
+        hairline — decorative
+      </p>
+      <div className="border border-hairline p-3">
+        Dividers, table rules, section separators.
+      </div>
+    </div>
+    <div>
+      <p className="mb-2 label-caps text-muted-foreground">
+        control — identifies a component
+      </p>
+      <div className="border border-control p-3">
+        Inputs, selects, checkboxes, any interactive boundary.
+      </div>
+    </div>
+  </div>
+</ThemeSplit>
+
+`--hairline` sits near 1.5:1 against the ground. That is fine for a divider and a genuine
+accessibility bug on a form control, because an input's border is what identifies it as an input.
+`--control` is solved to 3:1 for exactly that case. Choosing between them is a correctness decision,
+not a visual one.
+
+## Corner ticks — the differentiator
+
+A surface is registered at its corners rather than enclosed by a box. Four hairline brackets, the way
+an instrument panel or a crop mark marks a frame.
+
+<ThemeSplit>
+  <div className="flex flex-wrap gap-6">
+    <div className="bg-surface-raised corner-ticks p-6 text-xs">default</div>
+    <div className="bg-surface-raised corner-ticks p-6 text-xs [--tick-len:1.25rem]">
+      longer ticks
+    </div>
+    <div className="bg-surface-raised corner-ticks p-6 text-xs [--tick-color:var(--signal)]">
+      signal ticks
+    </div>
+    <div className="bg-surface-raised corner-ticks p-6 text-xs [--tick-len:1rem] [--tick-w:2px]">
+      heavier
+    </div>
+  </div>
+</ThemeSplit>
+
+Implemented as a single `@utility` in `app/globals.css` using eight `linear-gradient` background
+layers — two per corner. That means no extra DOM, no pseudo-elements (so `::before` and `::after`
+stay free for the component using it), and it composes with any `background-color`.
+
+Three custom properties tune it per element:
+
+| Property       | Default                 |                          |
+| -------------- | ----------------------- | ------------------------ |
+| `--tick-len`   | `0.625rem`              | bracket arm length       |
+| `--tick-w`     | `1px`                   | bracket weight           |
+| `--tick-color` | `--ink-07` / `--ink-06` | bracket color, per theme |
+
+## Radius
+
+`--radius: 0`. Every `rounded-*` step derives from it by `calc()`, so all seven collapse together and
+squareness is enforced by one declaration rather than by discipline.
+
+<ThemeSplit>
+  <div className="flex gap-4 text-xs">
+    <div className="rounded-sm border border-hairline bg-surface-raised p-3">
+      rounded-sm
+    </div>
+    <div className="rounded-lg border border-hairline bg-surface-raised p-3">
+      rounded-lg
+    </div>
+    <div className="rounded-3xl border border-hairline bg-surface-raised p-3">
+      rounded-3xl
+    </div>
+  </div>
+</ThemeSplit>
+
+## Focus
+
+One treatment for the entire kit: a 2px signal outline at 2px offset, set once on `:focus-visible` in
+the base layer. The offset matters against a square corner — a ring flush to the edge reads as a
+border change rather than as focus.
+
+Measured at 11.30:1 in dark and 3.31:1 in light, both above the 3:1 non-text threshold.
+
+<ThemeSplit>
+  <button type="button" className="border border-control px-3 py-2 text-xs">
+    Focus me with Tab
+  </button>
+</ThemeSplit>

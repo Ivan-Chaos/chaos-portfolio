@@ -1,0 +1,118 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { ThemeSplit, TypeRow } from "./foundation/kit";
+
+<Meta title="Foundation/Typography" />
+
+# Typography
+
+Three faces, three jobs, no overlap.
+
+| Face                   | Job                                                                                              | Reached via                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------- |
+| **JetBrains Mono**     | Everything. The default UI face — labels, buttons, inputs, headings, table data, numerals, code. | nothing; it is the document default |
+| **Archivo**            | Long-form prose only. The one deliberate deviation from the anchor.                              | `prose-face`                        |
+| **Archivo, condensed** | Oversized section figures only.                                                                  | `figure-condensed`                  |
+
+Mono is the default because `--default-font-family` points at it in `@theme`, not because a utility
+class is applied somewhere. That matters: a component that forgets to set a face still gets the
+right one.
+
+## The scale
+
+Sizes keep Tailwind's familiar values, so `text-sm` still means roughly what it reads as. The
+line-heights and tracking are retuned for monospace, which runs about 15% wider than a grotesk:
+display steps take negative tracking to stop them sprawling, body steps take slightly more leading.
+
+<ThemeSplit>
+  <div>
+    <TypeRow name="text-7xl" className="text-7xl" sample="Orbit" />
+    <TypeRow name="text-5xl" className="text-5xl" sample="Trajectory" />
+    <TypeRow name="text-3xl" className="text-3xl" sample="Ground station" />
+    <TypeRow name="text-2xl" className="text-2xl" />
+    <TypeRow name="text-xl" className="text-xl" />
+    <TypeRow name="text-lg" className="text-lg" />
+    <TypeRow name="text-base" className="text-base" />
+    <TypeRow name="text-sm" className="text-sm" />
+    <TypeRow name="text-xs" className="text-xs" />
+    <TypeRow name="text-2xs" className="text-2xs" />
+  </div>
+</ThemeSplit>
+
+## Tracking
+
+Uppercase monospace needs _positive_ tracking to stay readable — the counters close up otherwise.
+Two tokens cover it, and they are the only places uppercase is sanctioned.
+
+<ThemeSplit>
+  <div>
+    <TypeRow
+      name="label-caps — field labels, table headers"
+      className="label-caps"
+      sample="Orbital period"
+    />
+    <TypeRow
+      name="tracking-kicker — section markers"
+      className="text-2xs tracking-kicker uppercase"
+      sample="Foundation"
+    />
+  </div>
+</ThemeSplit>
+
+## Numerals
+
+`font-variant-numeric: tabular-nums` is set on `html`, so figures align everywhere rather than only
+inside tables. This is an anchor requirement, not a convenience.
+
+<ThemeSplit>
+  <table className="w-full text-sm">
+    <tbody>
+      <tr className="border-b border-hairline">
+        <td className="py-1.5">Orbital period</td>
+        <td className="py-1.5 text-right">92.68</td>
+        <td className="py-1.5 pl-3 text-muted-foreground">min</td>
+      </tr>
+      <tr className="border-b border-hairline">
+        <td className="py-1.5">Apoapsis</td>
+        <td className="py-1.5 text-right">418.20</td>
+        <td className="py-1.5 pl-3 text-muted-foreground">km</td>
+      </tr>
+      <tr>
+        <td className="py-1.5">Inclination</td>
+        <td className="py-1.5 text-right">51.64</td>
+        <td className="py-1.5 pl-3 text-muted-foreground">deg</td>
+      </tr>
+    </tbody>
+  </table>
+</ThemeSplit>
+
+## Ligatures
+
+JetBrains Mono ships code ligatures. `!=` collapsing into a single glyph is correct in a code block
+and wrong in a button label, so `font-variant-ligatures: none` is set on `html` and re-enabled only
+by the code components.
+
+## Prose — the sanctioned deviation
+
+The proportional face is available through `prose-face` and nowhere else. It bundles the face change
+with its size and leading so the deviation stays in one place instead of scattering across
+components.
+
+<ThemeSplit>
+  <div className="max-w-prose prose-face">
+    <p>
+      Long-form text sets in Archivo at a longer measure and looser leading than
+      the UI chrome around it. This is the only context in the system where a
+      proportional face appears, and the reason is readability at length rather
+      than preference.
+    </p>
+  </div>
+</ThemeSplit>
+
+## Condensed figures
+
+`figure-condensed` reaches Archivo's `wdth` axis at 62%. Its only job is oversized section
+numbering — it is not a display face for headings, which stay in mono.
+
+<ThemeSplit>
+  <p className="figure-condensed text-7xl">01 02 03 04</p>
+</ThemeSplit>

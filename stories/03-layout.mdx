@@ -1,0 +1,70 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { ThemeSplit } from "./foundation/kit";
+
+<Meta title="Foundation/Layout" />
+
+# Layout
+
+Tailwind v4's default spacing scale is kept as-is — `--spacing: 0.25rem`, so `p-4` is 1rem. There was
+no reason to invent a competing rhythm, and a custom scale would break every vendored component's
+padding.
+
+## Breakpoints
+
+These are the four widths every component is checked at. They are registered as Storybook viewport
+presets, so the toolbar and the review process use the same numbers.
+
+| Preset  | Width  | Tailwind   |
+| ------- | ------ | ---------- |
+| Mobile  | 390px  | below `sm` |
+| Tablet  | 768px  | `md`       |
+| Desktop | 1280px | `xl`       |
+| Wide    | 1536px | `2xl`      |
+
+390px is the real target rather than the traditional 320px — it is the current iPhone logical width
+and the point where a monospace-heavy layout actually starts to strain, since mono runs wide.
+
+## The monospace measure problem
+
+This is the one layout constraint the anchor imposes that a proportional system would not have.
+
+At the same font size, monospace occupies noticeably more horizontal space per character. A 60-column
+line of JetBrains Mono is wider than 60 columns of a grotesk, so any layout tuned by eye on a
+proportional face will overflow here. Two consequences worth building around:
+
+- Tables and data rows run out of room sooner. Plan the mobile fallback before the desktop layout,
+  not after.
+- Comfortable prose measure lands near 68–72 characters, which is why `prose-face` switches to the
+  proportional face and a longer measure rather than trying to make mono work at length.
+
+<ThemeSplit>
+  <div className="space-y-2 text-xs">
+    <p className="w-full max-w-[38ch] border border-hairline p-2">
+      38ch of monospace
+    </p>
+    <p className="w-full max-w-[38ch] border border-hairline p-2 prose-face">
+      38ch of Archivo, same measure
+    </p>
+  </div>
+</ThemeSplit>
+
+Both boxes are `38ch`. The `ch` unit resolves against each element's own font, which is exactly why
+the two differ — and why `ch`-based widths need the face pinned to mean anything.
+
+## Containers
+
+Tailwind's `--container-*` scale is unchanged, so `max-w-3xl` and friends behave as documented. The
+`Container` component wraps the common page case (centred, gutters that grow with the viewport) and
+arrives in Phase 2.
+
+## Z-index
+
+Overlays are stacked by the primitives themselves — Base UI portals each overlay into its own layer
+and manages ordering, so there is no hand-maintained z-index table to drift out of sync. Reach for an
+explicit `z-*` only for something that is not an overlay, such as a sticky header.
+
+## Motion and layout
+
+`prefers-reduced-motion: reduce` collapses all animation and transition durations to near-zero in the
+base layer, and also disables smooth scrolling. Nothing in the kit needs to opt in — see
+**Foundation → Motion**.
