@@ -1,0 +1,98 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import { MotionSpecimen, ThemeSplit } from "./foundation/kit";
+
+<Meta title="Foundation/Motion" />
+
+# Motion
+
+Mechanical, not springy. A state change in this system should read as a relay closing, not as
+something gliding into place. Spring physics and long eases belong to a different anchor.
+
+## Durations
+
+Short by default. `--default-transition-duration` is 110ms, so a bare `transition-colors` is already
+fast without anything being specified.
+
+<ThemeSplit>
+  <div>
+    <MotionSpecimen
+      name="instant"
+      duration="--duration-instant"
+      easing="--ease-mech-out"
+    />
+    <MotionSpecimen
+      name="fast"
+      duration="--duration-fast"
+      easing="--ease-mech-out"
+    />
+    <MotionSpecimen
+      name="base"
+      duration="--duration-base"
+      easing="--ease-mech-out"
+    />
+    <MotionSpecimen
+      name="slow"
+      duration="--duration-slow"
+      easing="--ease-mech-out"
+    />
+  </div>
+</ThemeSplit>
+
+Click a bar to replay it.
+
+| Token                | Value | Use                                       |
+| -------------------- | ----- | ----------------------------------------- |
+| `--duration-instant` | 60ms  | hover and active feedback                 |
+| `--duration-fast`    | 110ms | the default; most state changes           |
+| `--duration-base`    | 180ms | overlays opening and closing              |
+| `--duration-slow`    | 280ms | full-surface transitions such as a drawer |
+
+## Easing
+
+<ThemeSplit>
+  <div>
+    <MotionSpecimen
+      name="ease-snap"
+      duration="--duration-slow"
+      easing="--ease-snap"
+    />
+    <MotionSpecimen
+      name="ease-mech-out"
+      duration="--duration-slow"
+      easing="--ease-mech-out"
+    />
+    <MotionSpecimen
+      name="ease-mech-in"
+      duration="--duration-slow"
+      easing="--ease-mech-in"
+    />
+  </div>
+</ThemeSplit>
+
+`--ease-snap` is `steps(3, end)`. It advances through three discrete frames instead of interpolating,
+which is the anchor's characteristic movement — visibly stepped, like a mechanical counter. It is the
+right choice for discrete state (a toggle flipping, a segment activating) and the wrong choice for
+anything continuous such as a scroll-linked effect or a progress bar.
+
+`--ease-mech-out` is the workhorse for entrances and is the project's
+`--default-transition-timing-function`. `--ease-mech-in` is its counterpart for exits.
+
+## Reduced motion
+
+The base layer honours `prefers-reduced-motion: reduce` globally: animation and transition durations
+collapse to `0.01ms`, iteration counts drop to 1, and smooth scrolling is switched off. Every
+component inherits this, so none of them need their own guard.
+
+Two things worth knowing:
+
+- `0.01ms` rather than `0` because some transitions rely on a `transitionend` event firing, and a
+  zero-duration transition may not emit one.
+- Next 16 no longer overrides a global `scroll-behavior: smooth` during navigation. Opting in
+  requires `data-scroll-behavior="smooth"` on `<html>`, which `app/layout.tsx` sets and
+  `app/globals.css` scopes the rule to — behind the same reduced-motion guard.
+
+## Existing keyframes
+
+`shadcn/tailwind.css` already ships `accordion-down`, `accordion-up`, the `scroll-fade-*` family and
+`tw-shimmer`, plus `no-scrollbar`, `scroll-fade` and `shimmer` utilities. Build on those rather than
+defining competing keyframes — the `shimmer` utility already carries its own reduced-motion guard.

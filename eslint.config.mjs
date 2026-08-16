@@ -14,6 +14,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Added for this project:
     "coverage/**",
+    // `storybook build` output. Declaring the ignore list replaces
+    // eslint-config-next's defaults rather than extending them, so any new
+    // build directory has to be listed here or eslint will lint the bundles.
+    "storybook-static/**",
   ]),
 ]);
 
