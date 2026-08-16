@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Archivo, JetBrains_Mono } from "next/font/google";
+import { PageField } from "@/components/home/page-field";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SkipLink } from "@/components/ui/skip-link";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { profile } from "@/content/profile";
 import "./globals.css";
 
 /* JetBrains Mono is the default UI face — see the rules block in globals.css. */
@@ -22,9 +25,39 @@ const archivo = Archivo({
   axes: ["wdth"],
 });
 
+/* Absolute URLs in metadata need a base. The deployment host is not decided
+   yet, so it comes from the environment with a local fallback — a wrong
+   absolute URL in an Open Graph tag is worse than a local one, because it is
+   the version that gets scraped. */
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+const description =
+  "Frontend Lead and architect. Seven years building production web applications in React, Next.js and TypeScript — telehealth, Web3, analytics and marketplaces.";
+
 export const metadata: Metadata = {
-  title: "Ivan Chaus",
-  description: "Portfolio of Ivan Chaus.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${profile.name} — ${profile.positioning}`,
+    template: `%s — ${profile.name}`,
+  },
+  description,
+  applicationName: profile.name,
+  authors: [{ name: profile.name }],
+  creator: profile.name,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "profile",
+    siteName: profile.name,
+    title: `${profile.name} — ${profile.positioning}`,
+    description,
+    url: "/",
+    locale: "en_GB",
+  },
+  twitter: {
+    card: "summary",
+    title: `${profile.name} — ${profile.positioning}`,
+    description,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -47,6 +80,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           enableSystem
           disableTransitionOnChange
         >
+          {/* First thing in the tab order. Its target is the `<main id="main">`
+              a page renders — see components/ui/skip-link.tsx for why that
+              element also needs `tabIndex={-1}`. */}
+          <SkipLink />
+          {/* Before the content in document order, which is how it stays
+              behind everything without a negative z-index — and therefore
+              without a stacking context for Base UI's overlays to fight. */}
+          <PageField />
           <TooltipProvider>{children}</TooltipProvider>
           {/* Inside ThemeProvider on purpose: the Toaster reads `useTheme()` to
               follow the active theme, and outside it that silently stops. */}

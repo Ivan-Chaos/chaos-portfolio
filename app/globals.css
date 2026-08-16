@@ -303,6 +303,10 @@
   --tick-w: 1px;
   --tick-color: var(--ink-07);
 
+  /* Grid pitch for `page-field`. Four rem, so it lines up with the spacing
+     scale rather than sitting at some unrelated interval. */
+  --field-cell: 4rem;
+
   --chart-1: var(--amber-signal);
   --chart-2: var(--ink-05);
   --chart-3: var(--amber-text);
@@ -450,6 +454,88 @@
   font-size: 1.0625rem;
   letter-spacing: 0;
   line-height: 1.7;
+}
+
+/* The page field — the plotted ground an instrument is drawn on.
+   A hairline grid at even strength across the whole viewport. `--hairline` is
+   already below 3:1 by design, and diluted further here, which is what makes it
+   safe at grid scale: it reads as paper, never as content.
+
+   Deliberately *not* masked with a vertical fade. The field is fixed, so a fade
+   would sit at a constant screen position and read as a band of dirt that the
+   page slides through rather than as a ground. Even coverage, diluted colour.
+
+   Fixed rather than scrolled for the same reason a plotter's paper is the thing
+   that moves: the drawing travels across the grid. */
+@utility page-field {
+  --field-line: color-mix(in oklab, var(--hairline) 55%, transparent);
+  background-image:
+    linear-gradient(to right, var(--field-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--field-line) 1px, transparent 1px);
+  background-size: var(--field-cell) var(--field-cell);
+  background-position: center top;
+}
+
+/* Steps the direct children of an element in, one `--duration-instant` apart.
+   Applied to a grid inside a `Reveal`; see `staggerChildren` in
+   components/motion/reveal.tsx.
+
+   The whole entrance lives in here rather than being composed from a string of
+   `*:` utilities at the call site. Both work; this keeps the delays and the
+   animation they are delaying in one place, where they cannot drift apart, and
+   leaves one class at the call site instead of six.
+
+   Delays are capped at the fourth child: a stagger that keeps growing turns a
+   long list into a queue, and the reader is trying to read it, not watch it.
+   240ms is the whole budget.
+
+   Reuses tw-animate-css's `enter` keyframes and its `--tw-enter-*` inputs, but
+   writes the `animation` shorthand out rather than reaching for
+   `var(--animate-in)`. That variable is declared on `:root`, so the `var()`s
+   *inside* it are substituted there — where none of the `--tw-*` inputs are
+   set — and it inherits down already collapsed to its fallbacks. It looks like
+   it works and silently animates at 150ms with the wrong easing. Tailwind's own
+   `animate-in` utility avoids this by inlining the value into the rule, which
+   is what this does by hand.
+
+   `backwards` fill so a delayed child holds its start frame instead of
+   appearing at full opacity and then jumping back to animate. */
+@utility reveal-stagger {
+  & > * {
+    --tw-enter-opacity: 0;
+    --tw-enter-translate-y: var(--spacing);
+    animation: enter var(--duration-base) var(--ease-mech-out)
+      var(--tw-animation-delay, 0s) 1 normal backwards;
+  }
+  & > *:nth-child(2) {
+    --tw-animation-delay: var(--duration-instant);
+  }
+  & > *:nth-child(3) {
+    --tw-animation-delay: calc(var(--duration-instant) * 2);
+  }
+  & > *:nth-child(4) {
+    --tw-animation-delay: calc(var(--duration-instant) * 3);
+  }
+  & > *:nth-child(n + 5) {
+    --tw-animation-delay: calc(var(--duration-instant) * 4);
+  }
+}
+
+/* A ruler edge — hairline marks at a regular pitch, drawn as a background
+   image rather than as elements or text. Closes a block the way a bezel closes
+   an instrument panel.
+   Being a background matters: a decorative *word* at watermark contrast is
+   still text and still fails 3:1, which is how the first version of the footer
+   sign-off broke the accessibility gate. Decoration that is not text has no
+   contrast threshold to fail. */
+@utility tick-scale {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--hairline-strong) 0 1px,
+    transparent 1px var(--tick-step, 0.75rem)
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
 
 /* Oversized condensed figures — section numbering only. */

@@ -83,6 +83,91 @@ Long-form running text, and the only context permitted the proportional face. Th
 chrome is what keeps the one deviation from spreading.
 _Avoid_: body text, copy, content
 
+### Page structure
+
+**Band**:
+One numbered section of a page, carrying its own figure, title and content. The home page is eight
+of them read top to bottom; the figures running 01→07 down the left edge are the structure, not
+decoration.
+_Avoid_: block, strip, region, panel, slice
+
+**Masthead**:
+The unnumbered opening band, above the first hairline. It carries the name, the positioning line and
+the standfirst, and it is the only band with no figure.
+_Avoid_: hero, banner, splash, jumbotron
+
+**Standfirst**:
+The short paragraph under the positioning line that says what the work actually is. Two sentences,
+set in chrome — it is short enough that the proportional face would be spending the deviation for
+nothing.
+_Avoid_: intro, blurb, tagline, bio, summary
+
+**Rail**:
+The fixed left column a band's figure and title move into at wide viewports, leaving the content the
+rest of the measure. What makes a stack of bands read as a datasheet rather than as a document: the
+figures line up down the page edge and the eye tracks them.
+_Avoid_: sidebar, gutter (that word means the container's padding), aside
+
+**Index**:
+The legend beside the masthead listing every band by figure and title. The only place the whole
+page's shape is visible at once, and the mobile substitute for a header nav that cannot fit seven
+links.
+_Avoid_: table of contents, menu, nav (that word means the element)
+
+**Page field**:
+The fixed hairline grid behind everything — the plotted ground an instrument is drawn on, with the
+column rules and register ticks that flank the measure. Decoration with no contrast threshold to
+meet, because none of it is text.
+_Avoid_: background, backdrop, texture, pattern
+
+### Portfolio content
+
+**Role**:
+A paid position held at one employer, with a title, a location and a date range. Three exist. Only
+one is ever current.
+_Avoid_: job, position, gig, experience
+
+**Engagement**:
+A client platform delivered inside a role, with its own stack and its own date range. Distinct from
+a role because several engagements ran concurrently inside one of them — collapsing the two words
+would make the track record read as though far more positions were held than were.
+_Avoid_: project, work, case study, client
+
+**Capability**:
+A named skill belonging to a discipline group. The unit the Capabilities band lists; the group is
+the term, the capabilities are the definition.
+_Avoid_: skill, tech, tool, tag, competency
+
+**Reading**:
+A single measured claim about the work, rendered as a `Stat` — a figure, a label, and the context
+that makes the figure mean something. Every reading traces to a line in a CV; there are no rounded
+approximations and no invented ones.
+_Avoid_: metric, KPI, proof point, achievement, highlight
+
+**Credential**:
+A completed qualification, with an institution and a date range. Both are degrees; both carry a
+distinction.
+_Avoid_: degree, education item, qualification
+
+### Motion
+
+**Reveal**:
+The scroll-triggered entrance applied to a band as it enters the viewport — opacity and transform
+only, once, never repeating. It is composed around a band from the outside; a band never contains
+its own.
+_Avoid_: scroll animation, fade-in, AOS, on-scroll, entrance
+
+**Decode**:
+The stepped character-substitution entrance that resolves noise into a final string. Spent exactly
+once, on the masthead name, for the same reason the signal colour is spent sparingly.
+_Avoid_: scramble, glitch, typewriter, matrix effect
+
+**Armed**:
+The state of a `Reveal` that has been claimed by JavaScript but has not yet entered the viewport,
+and the only state in which content is hidden. It cannot exist in server-rendered output, which is
+what guarantees the page is never blank without JavaScript.
+_Avoid_: pending, idle, hidden, initial
+
 ### Conventions
 
 Add a term the moment it is decided, not in a later batch. The format:

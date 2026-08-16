@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!--
+    The anchor's own mark: corner ticks registering a frame, with the signal at
+    the centre. It is the design system's signature treatment reduced to the one
+    shape that still reads at 16px — brackets and a dot, which is a reticle,
+    which is what a ground-station readout points at.
+
+    Warm-black #0B0C0A is the dark theme's ground, not a generic near-black; the
+    amber is the anchor value #FFB800. Both are literal here because an SVG icon
+    is served standalone and has no stylesheet to read tokens from.
+  -->
+  <rect width="32" height="32" fill="#0B0C0A" />
+  <g stroke="#FFB800" stroke-width="2" fill="none">
+    <path d="M6 11V6h5" />
+    <path d="M21 6h5v5" />
+    <path d="M26 21v5h-5" />
+    <path d="M11 26H6v-5" />
+  </g>
+  <rect x="13" y="13" width="6" height="6" fill="#FFB800" />
+</svg>

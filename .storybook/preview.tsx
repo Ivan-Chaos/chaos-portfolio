@@ -127,6 +127,9 @@ const preview: Preview = {
             "Icons",
           ],
           "Components",
+          // The page the kit exists for, below the kit itself. Its stories are
+          // the only thing that puts the home page's markup under axe.
+          "Home",
           "*",
         ],
       },

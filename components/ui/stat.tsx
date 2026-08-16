@@ -27,13 +27,18 @@ function Stat({
   return (
     <div
       data-slot="stat"
-      className={cn("corner-ticks bg-card p-4", className)}
+      className={cn("bg-card corner-ticks p-4", className)}
       {...props}
     >
       <dl>
         <dt className="label-caps text-muted-foreground">{label}</dt>
         <dd className="mt-2 flex items-baseline gap-1.5">
-          <span className="text-3xl tabular-nums">{value}</span>
+          {/* Slotted so a caller can scale the figure without reaching in with
+              a positional child selector. The figure is the point of a readout;
+              how loud it should be depends on how much room it has. */}
+          <span data-slot="stat-value" className="text-3xl tabular-nums">
+            {value}
+          </span>
           {unit ? (
             <span className="text-xs text-muted-foreground">{unit}</span>
           ) : null}

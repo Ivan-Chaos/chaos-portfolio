@@ -15,6 +15,15 @@ const linkVariants = cva(
         quiet: "hover:text-signal-text hover:underline",
         /** Carries the signal at rest. Use sparingly; it is the accent. */
         signal: "text-signal-text underline decoration-current",
+        /**
+         * No treatment of its own — for a link whose appearance comes from
+         * somewhere else, which in practice means `buttonVariants`.
+         *
+         * `quiet` is not a substitute: its `hover:text-signal-text` does not
+         * conflict with a button's `text-*` under twMerge, so both survive and
+         * a signal button turns amber-on-amber on hover.
+         */
+        unstyled: "",
       },
     },
     defaultVariants: { variant: "default" },
