@@ -37,4 +37,3 @@ export const credentials: readonly Credential[] = [
     distinction: "with Honors",
   },
 ];
-

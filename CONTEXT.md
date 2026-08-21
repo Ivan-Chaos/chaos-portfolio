@@ -168,6 +168,24 @@ and the only state in which content is hidden. It cannot exist in server-rendere
 what guarantees the page is never blank without JavaScript.
 _Avoid_: pending, idle, hidden, initial
 
+**Caret**:
+The blinking block mark after the masthead name — the terminal's idiom, set in signal amber,
+blinking as a square wave rather than a fade. Spent once, like the decode it follows; under
+reduced motion it holds solid.
+_Avoid_: cursor (that word means the pointer), text cursor, prompt
+
+**Gauge**:
+The 2px signal line along the header's bottom rule that fills with scroll progress — the page
+reading itself out. Scroll-driven CSS with no script; it stays at zero under reduced motion and in
+browsers without scroll timelines.
+_Avoid_: progress bar, scroll indicator, reading bar
+
+**Latch**:
+The held hover state of an engagement card: accent fill, title to signal text, corner ticks
+extended to the signal edge. It closes like a relay — colours jump, only the tick length animates
+— and holds only while the pointer does.
+_Avoid_: hover effect, highlight, active state
+
 ### Conventions
 
 Add a term the moment it is decided, not in a later batch. The format:

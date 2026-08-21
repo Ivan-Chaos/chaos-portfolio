@@ -25,7 +25,12 @@ import type { Engagement } from "@/content/schema";
  */
 function EngagementCard({ engagement }: { engagement: Engagement }) {
   return (
-    <Card className="transition-colors duration-(--duration-fast) hover:bg-accent">
+    // The latch, in three parts: the accent fill, the title taking the signal,
+    // and the corner ticks extending to the signal edge. The tick *length*
+    // animates — brackets reaching further in — while the tick *colour* jumps,
+    // because a background-image colour is not interpolable: exactly the relay
+    // click the anchor wants, for free.
+    <Card className="transition-[background-color,background-size] duration-(--duration-base) ease-mech-out hover:bg-accent hover:[--tick-color:var(--signal-edge)] hover:[--tick-len:1.25rem]">
       <CardContent>
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <Heading

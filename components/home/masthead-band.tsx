@@ -48,6 +48,17 @@ function MastheadBand() {
             in the scale for exactly this and are dead weight anywhere else. */}
         <Heading level={1} size="3xl" className="mt-6 sm:text-6xl lg:text-7xl">
           <Decode text={profile.name} />
+          {/* The caret. It blinks through the decode and keeps blinking after —
+              a value that resolved at a prompt someone is still sitting at.
+              0.45ch + the margin fits inside the ~60px the name leaves spare at
+              390px, so the no-wrap guarantee above still holds. */}
+          {/* `signal-edge`, not `signal`: the mark has to register on the light
+              ground, where raw amber is 1.57:1. The edge token is the solved
+              3:1 value in light and the identical amber in dark. */}
+          <span
+            aria-hidden="true"
+            className="ms-[0.25ch] inline-block h-[0.72em] w-[0.45ch] masthead-caret bg-signal-edge"
+          />
         </Heading>
 
         <p className="mt-3 font-heading text-lg font-medium text-muted-foreground sm:text-xl lg:text-2xl">

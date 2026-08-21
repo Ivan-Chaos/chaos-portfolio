@@ -538,6 +538,44 @@
   background-size: 100% 100%;
 }
 
+/* The masthead caret — the terminal's own mark, spent once, after the decoded
+   name. A square wave, never a fade: `steps(1)` holds each state and jumps,
+   which is the anchor's motion. The reduced-motion guard collapses this to a
+   single instant run with no fill, so the caret rests solid at the element's
+   own opacity — a static mark, not a flicker. */
+@utility masthead-caret {
+  animation: caret-blink 1.1s steps(1, end) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* The gauge — scroll progress as an instrument reading, drawn along the
+   header's bottom rule. Scroll-driven, so it costs no listener and no script.
+   The resting state is scaleX(0): a browser without scroll timelines never
+   scales it up, and reduced motion never opts in — both lose only decoration.
+   `both` fill so a mid-page load lands at the right reading immediately. */
+@utility scroll-gauge {
+  transform: scaleX(0);
+  transform-origin: left;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: scroll-gauge linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes scroll-gauge {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 /* Oversized condensed figures — section numbering only. */
 @utility figure-condensed {
   font-family: var(--font-condensed);
@@ -567,6 +605,14 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Selection is the reader's own mark, so it takes the signal. Amber under
+     ink is the one hue pairing the system already trusts everywhere a fill
+     carries text — 11.42:1, theme-stable. */
+  ::selection {
+    background-color: var(--signal);
+    color: var(--signal-foreground);
   }
 
   /* Next 16 no longer overrides a global smooth scroll-behavior on navigation,

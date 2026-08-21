@@ -69,6 +69,19 @@ function SiteHeader() {
           </ul>
         </nav>
       </Container>
+
+      {/* The gauge — scroll progress drawn along the header's rule, the page
+          reading itself out. `-bottom-px` sets it on the border itself, so the
+          amber overwrites the hairline as it passes rather than floating a
+          pixel above it. Decoration: hidden from assistive tech, absent under
+          reduced motion, and absent in browsers without scroll timelines. */}
+      {/* `signal-edge` for the same reason the focus ring drops to `--ring`'s
+          solved value in light: a 2px amber line at 1.57:1 on the light ground
+          is a gauge nobody can read. */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 -bottom-px h-0.5 scroll-gauge bg-signal-edge"
+      />
     </header>
   );
 }
