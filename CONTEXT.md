@@ -120,6 +120,23 @@ column rules and register ticks that flank the measure. Decoration with no contr
 meet, because none of it is text.
 _Avoid_: background, backdrop, texture, pattern
 
+**Ops chart**:
+The plotted track record — every role and engagement as a bar on one time axis, drawn from the
+stored ranges and never from the clock. The one place the concurrency of the engagements is
+visible. Hidden from assistive tech because the timeline below tells the same facts in full.
+_Avoid_: Gantt, timeline chart (the Timeline is the accessible telling), graph
+
+**Field figure**:
+A hairline instrument idling in the page field's margins — the dial, the stepper, the beacon, the
+hatch plate. Geometry only, motion stepped and slow, never text and never a reading; they exist
+only at viewports wide enough to have margins. Instruments idling, not measuring.
+_Avoid_: background shapes, particles, ornaments, blobs
+
+**Register cross**:
+The small drafting cross where a band's top rule meets each end, riding the same armed state as
+the rule it marks. The sheet-alignment mark of a technical drawing.
+_Avoid_: plus, crosshair, target
+
 ### Portfolio content
 
 **Role**:

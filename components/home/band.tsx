@@ -54,6 +54,24 @@ function Band({
           "group-data-[reveal-armed]/reveal:scale-x-0",
         )}
       />
+      {/* Register crosses where the rule meets its ends — the mark a drafting
+          sheet uses to prove its layers are aligned. They ride the same armed
+          state as the rule, fading in as it draws. */}
+      {(["left", "right"] as const).map((side) => (
+        <span
+          key={side}
+          aria-hidden="true"
+          className={cn(
+            "absolute -top-[5px] size-2.5",
+            side === "left" ? "-left-[5px]" : "-right-[5px]",
+            "transition-opacity duration-(--duration-slow) ease-mech-out",
+            "group-data-[reveal-armed]/reveal:opacity-0",
+          )}
+        >
+          <span className="absolute top-1/2 h-px w-full bg-hairline-strong" />
+          <span className="absolute left-1/2 h-full w-px bg-hairline-strong" />
+        </span>
+      ))}
       {children}
     </Section>
   );

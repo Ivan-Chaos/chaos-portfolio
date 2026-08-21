@@ -16,6 +16,7 @@ function Stat({
   value,
   unit,
   hint,
+  scale = false,
   className,
   ...props
 }: Omit<React.ComponentProps<"div">, "children"> & {
@@ -23,6 +24,12 @@ function Stat({
   value: React.ReactNode;
   unit?: string;
   hint?: React.ReactNode;
+  /**
+   * Draws a `tick-scale` ruler edge under the figure, so the stat reads as a
+   * value on an instrument face. Decoration, not a gauge: the ticks carry no
+   * data reading, which is exactly why they have no contrast threshold.
+   */
+  scale?: boolean;
 }) {
   return (
     <div
@@ -44,6 +51,9 @@ function Stat({
           ) : null}
         </dd>
       </dl>
+      {scale ? (
+        <div aria-hidden="true" className="mt-3 h-2 tick-scale" />
+      ) : null}
       {hint ? (
         <p className="mt-2 text-2xs text-muted-foreground">{hint}</p>
       ) : null}

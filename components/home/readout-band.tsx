@@ -40,6 +40,7 @@ function ReadoutBand() {
             value={<CountUp value={reading.value} />}
             unit={reading.unit}
             hint={reading.hint}
+            scale
           />
         ))}
       </StatGroup>

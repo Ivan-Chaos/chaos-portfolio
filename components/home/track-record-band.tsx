@@ -9,6 +9,7 @@ import {
 import { roles } from "@/content/roles";
 import { Band } from "./band";
 import { DateRange } from "./date-range";
+import { OpsChart } from "./ops-chart";
 
 /**
  * Band 04 — the three positions, newest first.
@@ -25,7 +26,12 @@ import { DateRange } from "./date-range";
 function TrackRecordBand() {
   return (
     <Band id="track-record" index="04" title="Track record">
-      <Timeline>
+      {/* The plot first, the prose under it — an instrument shows the reading
+          before the log. The chart is aria-hidden; the timeline below is the
+          accessible telling of the same facts. */}
+      <OpsChart />
+
+      <Timeline className="mt-10">
         {roles.map((role) => (
           <TimelineItem key={role.id} current={role.current}>
             <TimelineMarker />

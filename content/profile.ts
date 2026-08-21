@@ -23,6 +23,13 @@ export const profile = {
 
   /** Where he is, and what the current position is. Both are facts, not offers. */
   location: "Pardubice, Czech Republic",
+
+  /**
+   * Pardubice's coordinates, as the locator captions them. Derived from the
+   * stated city — a public, checkable fact like everything else here — and
+   * stored as display strings so no formatting logic can drift them.
+   */
+  coordinates: "50.04°N 15.78°E",
   currentRole: "Front-end Engineer",
   currentOrganisation: "YachtWay",
   currentOrganisationLocation: "Miami, USA — remote",

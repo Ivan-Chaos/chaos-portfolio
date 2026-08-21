@@ -142,8 +142,11 @@ function MastheadBand() {
             ))}
           </ul>
         </div>
+        {/* The coordinates outlived the locator that introduced them — the
+            fact stays, set as chrome. */}
         <p className="mt-4 text-2xs text-muted-foreground">
-          {profile.location}
+          {profile.location} —{" "}
+          <span className="whitespace-nowrap">{profile.coordinates}</span>
         </p>
       </nav>
     </div>
