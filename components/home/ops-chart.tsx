@@ -131,8 +131,10 @@ function OpsChart() {
           ) : null}
         </span>
 
+        {/* The public band titles, not the domain words — the drawn record and
+            the written one should use the same language. */}
         <span className="col-span-2 pt-3 pb-1 label-caps text-muted-foreground">
-          Roles
+          Experience
         </span>
         {roles.map((role) => (
           <ChartRow
@@ -144,7 +146,7 @@ function OpsChart() {
         ))}
 
         <span className="col-span-2 pt-3 pb-1 label-caps text-muted-foreground">
-          Engagements
+          Projects
         </span>
         {engagements.map((engagement) => (
           <ChartRow

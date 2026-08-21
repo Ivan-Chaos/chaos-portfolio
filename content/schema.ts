@@ -87,6 +87,20 @@ export type Capability = {
   items: string[];
 };
 
+/**
+ * A featured tool of the practice, rendered as a card in the Capabilities
+ * band. The note is the card's whole point: one sentence saying where the
+ * tool actually earned its place, traceable to an engagement or a role like
+ * every other claim on the page. A tool without a real story does not get to
+ * be an instrument — it stays in the inventory.
+ */
+export type Instrument = {
+  id: string;
+  label: string;
+  /** One sentence: the real work where the tool was fielded. */
+  note: string;
+};
+
 /** A completed qualification. */
 export type Credential = {
   id: string;

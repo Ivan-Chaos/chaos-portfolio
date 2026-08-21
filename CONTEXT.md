@@ -141,14 +141,35 @@ _Avoid_: plus, crosshair, target
 
 **Role**:
 A paid position held at one employer, with a title, a location and a date range. Three exist. Only
-one is ever current.
-_Avoid_: job, position, gig, experience
+one is ever current. Rendered under the public band title **Experience** — the code keeps the
+domain word.
+_Avoid_: job, position, gig, experience (as a domain word — it is only the band title)
 
 **Engagement**:
 A client platform delivered inside a role, with its own stack and its own date range. Distinct from
 a role because several engagements ran concurrently inside one of them — collapsing the two words
-would make the track record read as though far more positions were held than were.
-_Avoid_: project, work, case study, client
+would make the record read as though far more positions were held than were. Rendered under the
+public band title **Projects** — the code keeps the domain word, because the role/engagement
+distinction is exactly what "project" blurs.
+_Avoid_: project (as a domain word — it is only the band title), work, case study, client
+
+**Instrument**:
+A featured tool of the practice, rendered as a card in the Capabilities band: the tool's mark, its
+name, and a field note. Admission requires a real story — a tool nothing on the page vouches for
+stays in the inventory. Never carries a proficiency; a self-assessed percentage is not a
+measurement.
+_Avoid_: skill card, tech card, badge
+
+**Field note**:
+The one sentence on an instrument's card saying where the tool actually earned its place, traceable
+to an engagement or a role like every other claim on the page.
+_Avoid_: description, blurb, usage note
+
+**Inventory**:
+The compact grouped readout of the full stack, kept under the instrument grid. It is what lets the
+instruments be selective — nothing is lost by not being featured — and the part that survives a
+recruiter's keyword scan.
+_Avoid_: skill list, tech list, tag cloud
 
 **Capability**:
 A named skill belonging to a discipline group. The unit the Capabilities band lists; the group is

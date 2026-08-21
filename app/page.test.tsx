@@ -5,6 +5,7 @@ import { BANDS } from "@/components/home/bands";
 import { capabilities } from "@/content/capabilities";
 import { credentials } from "@/content/education";
 import { engagements } from "@/content/engagements";
+import { instruments } from "@/content/instruments";
 import { email } from "@/content/profile";
 import { readings } from "@/content/readings";
 import { roles } from "@/content/roles";
@@ -248,8 +249,8 @@ describe("home page", () => {
     expect(container.querySelectorAll("[data-current]")).toHaveLength(1);
   });
 
-  it("renders every engagement, credential and capability group", () => {
-    render(<Home />);
+  it("renders every engagement, credential, instrument and capability group", () => {
+    const { container } = render(<Home />);
 
     for (const engagement of engagements) {
       expect(
@@ -261,8 +262,21 @@ describe("home page", () => {
         screen.getByRole("heading", { name: credential.qualification }),
       ).toBeInTheDocument();
     }
+    for (const instrument of instruments) {
+      expect(
+        screen.getByRole("heading", { name: instrument.label }),
+      ).toBeInTheDocument();
+    }
+    // Scoped to the inventory list: an instrument card may share a capability
+    // group's name ("State & data" does), so the page-wide query is ambiguous
+    // by design rather than by accident.
+    const inventory = container.querySelector(
+      "#capabilities [data-slot='readout-list']",
+    )!;
     for (const capability of capabilities) {
-      expect(screen.getByText(capability.label)).toBeInTheDocument();
+      expect(
+        within(inventory as HTMLElement).getByText(capability.label),
+      ).toBeInTheDocument();
     }
   });
 });

@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/layout";
 import { capabilities } from "@/content/capabilities";
 import { credentials } from "@/content/education";
 import { engagements } from "@/content/engagements";
+import { instruments } from "@/content/instruments";
 import { email, gitHubUrl, linkedInUrl } from "@/content/profile";
 import { readings } from "@/content/readings";
 import { roles } from "@/content/roles";
@@ -215,6 +216,17 @@ export const Capabilities: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    // Every instrument is a card with a heading and its field note — the note
+    // is the card's whole point, so its absence is a failure, not a variant.
+    for (const instrument of instruments) {
+      expect(
+        canvas.getByRole("heading", { level: 3, name: instrument.label }),
+      ).toBeInTheDocument();
+      expect(canvas.getByText(instrument.note)).toBeInTheDocument();
+    }
+
+    // The inventory stays underneath, whole. It is what lets the cards be
+    // selective, and it is the part that survives a keyword scan.
     // The highest-value a11y check on the page: `label-caps` is 11px in the
     // muted tone, which is the pairing most likely to fail on the light ground.
     expect(canvas.getAllByRole("term")).toHaveLength(capabilities.length);

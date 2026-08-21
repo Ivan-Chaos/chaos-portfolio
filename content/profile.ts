@@ -35,19 +35,21 @@ export const profile = {
   currentOrganisationLocation: "Miami, USA — remote",
 
   /**
-   * Two sentences under the positioning line.
+   * Two sentences under the positioning line, and they tell the developer's
+   * story, not the employment one — no employer names here, because the
+   * kicker above already says where he currently is and the Experience band
+   * says the rest. See docs/specs/0006-portfolio-voice.md.
    *
-   * Deliberately full of proper nouns and one checkable figure. Every strong
-   * portfolio hero surveyed for this page names something specific; the generic
-   * register — "passionate developer crafting beautiful experiences" — names
-   * nothing, which is exactly why it reads as filler.
+   * Still deliberately full of checkable specifics. The generic register —
+   * "passionate developer crafting beautiful experiences" — names nothing,
+   * which is exactly why it reads as filler.
    *
-   * Set in chrome, not `Prose`. Forty words is not long-form, and reaching for
+   * Set in chrome, not `Prose`. Fifty words is not long-form, and reaching for
    * the proportional face here would be the first step in widening the one
    * recorded deviation.
    */
   standfirst:
-    "Seven years building production web applications in React, Next.js and TypeScript — currently at YachtWay, where a performance overhaul cut page latency in half across the marketplace. Before that, five years directing frontend architecture and delivery for ten-plus client platforms.",
+    "Seven years shipping production web applications in React, Next.js and TypeScript — the architecture, the rendering strategy and the design system, held to numbers like a marketplace-wide 50% latency cut. Ten-plus platforms taken from an empty repository to production, across telehealth, Web3, analytics and subscriptions.",
 } as const;
 
 export const email = "ivan13oct@gmail.com";

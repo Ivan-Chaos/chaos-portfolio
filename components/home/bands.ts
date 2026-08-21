@@ -10,8 +10,11 @@
 export const BANDS = [
   { id: "readout", index: "01", title: "Readout" },
   { id: "practice", index: "02", title: "Practice" },
-  { id: "engagements", index: "03", title: "Engagements" },
-  { id: "track-record", index: "04", title: "Track record" },
+  // Public titles, not the domain words: the page says Projects and
+  // Experience, the code keeps engagement and role. The ids are anchors and
+  // never changed by a retitle. See docs/specs/0006-portfolio-voice.md.
+  { id: "engagements", index: "03", title: "Projects" },
+  { id: "track-record", index: "04", title: "Experience" },
   { id: "capabilities", index: "05", title: "Capabilities" },
   { id: "education", index: "06", title: "Education" },
   { id: "contact", index: "07", title: "Contact" },

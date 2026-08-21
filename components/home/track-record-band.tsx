@@ -12,7 +12,10 @@ import { DateRange } from "./date-range";
 import { OpsChart } from "./ops-chart";
 
 /**
- * Band 04 — the three positions, newest first.
+ * Band 04 — the three positions, newest first, titled **Experience** on the
+ * page. This is where the employment talk lives, on purpose: the projects
+ * band says what was built, this one says the context it was delivered
+ * inside. The component keeps its code name — identifiers are not copy.
  *
  * Real titles, which is what makes the masthead's "Frontend Lead / Architect"
  * a description of the practice rather than a claim about a current job title.
@@ -25,7 +28,12 @@ import { OpsChart } from "./ops-chart";
  */
 function TrackRecordBand() {
   return (
-    <Band id="track-record" index="04" title="Track record">
+    <Band
+      id="track-record"
+      index="04"
+      title="Experience"
+      description="The positions the projects were delivered inside."
+    >
       {/* The plot first, the prose under it — an instrument shows the reading
           before the log. The chart is aria-hidden; the timeline below is the
           accessible telling of the same facts. */}
