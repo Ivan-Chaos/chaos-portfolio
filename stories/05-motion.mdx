@@ -47,6 +47,35 @@ Click a bar to replay it.
 | `--duration-base`    | 180ms | overlays opening and closing              |
 | `--duration-slow`    | 280ms | full-surface transitions such as a drawer |
 
+### There is no `duration-slow` utility, and reaching for one fails silently
+
+This is the single easiest mistake to make in this project, because nothing
+reports it.
+
+Tailwind's `duration-*` utility resolves against the **`--transition-duration-*`**
+namespace. The tokens above are `--duration-*`, which emits the custom properties
+but generates no matching classes. So `duration-base` compiles to nothing at all
+— no build error, no lint warning, no visual effect. The element simply
+transitions at Tailwind's 150ms default and looks close enough to be missed.
+
+`ease-mech-out` and `ease-snap` **do** work, because `ease-*` reads the `--ease`
+namespace, which this project does populate. That asymmetry is what makes the
+failure so easy to walk past: half the line is correct.
+
+Reference the token explicitly instead:
+
+```html
+<!-- transitions -->
+<div class="transition-colors duration-(--duration-fast) ease-mech-out">
+  <!-- tw-animate-css entrances -->
+  <div
+    class="animate-in ease-mech-out animation-duration-(--duration-base) fade-in"
+  ></div>
+</div>
+```
+
+The second form is what `Reveal` uses — see **Components → Motion**.
+
 ## Easing
 
 <ThemeSplit>
@@ -81,9 +110,19 @@ anything continuous such as a scroll-linked effect or a progress bar.
 
 The base layer honours `prefers-reduced-motion: reduce` globally: animation and transition durations
 collapse to `0.01ms`, iteration counts drop to 1, and smooth scrolling is switched off. Every
-component inherits this, so none of them need their own guard.
+component that animates **in CSS** inherits this, so none of them need their own guard.
 
-Two things worth knowing:
+**The guard is CSS-only, and there are two holes in it.**
+
+- It does nothing to JavaScript that rewrites the DOM. `Decode` and `CountUp` in
+  `components/motion/` both change `textContent`, so each asks
+  `matchMedia("(prefers-reduced-motion: reduce)")` itself and renders its final state instead.
+  Anything else that animates from script has to do the same.
+- `animation-iteration-count: 1` **breaks** an infinite animation rather than stopping it: a marquee
+  runs exactly one cycle and freezes mid-loop, leaving half its content off-screen. That is one
+  reason there is no ticker in this project.
+
+Two more things worth knowing:
 
 - `0.01ms` rather than `0` because some transitions rely on a `transitionend` event firing, and a
   zero-duration transition may not emit one.

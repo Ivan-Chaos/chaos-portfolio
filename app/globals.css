@@ -303,6 +303,10 @@
   --tick-w: 1px;
   --tick-color: var(--ink-07);
 
+  /* Grid pitch for `page-field`. Four rem, so it lines up with the spacing
+     scale rather than sitting at some unrelated interval. */
+  --field-cell: 4rem;
+
   --chart-1: var(--amber-signal);
   --chart-2: var(--ink-05);
   --chart-3: var(--amber-text);
@@ -452,6 +456,182 @@
   line-height: 1.7;
 }
 
+/* The page field — the plotted ground an instrument is drawn on.
+   A hairline grid at even strength across the whole viewport. `--hairline` is
+   already below 3:1 by design, and diluted further here, which is what makes it
+   safe at grid scale: it reads as paper, never as content.
+
+   Deliberately *not* masked with a vertical fade. The field is fixed, so a fade
+   would sit at a constant screen position and read as a band of dirt that the
+   page slides through rather than as a ground. Even coverage, diluted colour.
+
+   Fixed rather than scrolled for the same reason a plotter's paper is the thing
+   that moves: the drawing travels across the grid. */
+@utility page-field {
+  --field-line: color-mix(in oklab, var(--hairline) 55%, transparent);
+  --field-line-major: color-mix(in oklab, var(--hairline) 90%, transparent);
+  /* Major rule every fourth cell, minor rules between — plotter paper's own
+     hierarchy. Both layers anchor at `center top`, and the major cell is an
+     exact multiple of the minor one, so the strong lines always land on weak
+     ones instead of ghosting beside them. */
+  background-image:
+    linear-gradient(to right, var(--field-line-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--field-line-major) 1px, transparent 1px),
+    linear-gradient(to right, var(--field-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--field-line) 1px, transparent 1px);
+  background-size:
+    calc(var(--field-cell) * 4) calc(var(--field-cell) * 4),
+    calc(var(--field-cell) * 4) calc(var(--field-cell) * 4),
+    var(--field-cell) var(--field-cell),
+    var(--field-cell) var(--field-cell);
+  background-position: center top;
+}
+
+/* Field figures — hairline instruments idling in the page field's margins.
+   All three motions are mechanical on principle: `steps()` easing, multi-
+   second periods offset so nothing syncs, transform/opacity only. A ground
+   station's idle screen does not drift — it ticks. Under reduced motion the
+   guard collapses each to a single instant run that rests at the element's
+   own static frame. */
+
+/* The dial: a frame indexing round in 45° clicks. */
+@utility field-dial {
+  animation: field-dial 48s steps(8, end) infinite;
+}
+
+@keyframes field-dial {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The stepper: a marker stepping down a tick scale, then wrapping. The 7rem
+   travel is 7 one-rem clicks down the h-32 scale the figure draws. */
+@utility field-stepper {
+  animation: field-stepper 14s steps(7, end) infinite;
+}
+
+@keyframes field-stepper {
+  to {
+    transform: translateY(7rem);
+  }
+}
+
+/* The beacon: the caret's square wave at an idle period, deliberately not a
+   multiple of the caret's 1.1s so the two never lock phase. */
+@utility field-beacon {
+  animation: caret-blink 3.7s steps(1, end) infinite;
+}
+
+/* Diagonal hatching for the one figure that holds still. */
+@utility field-hatch {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--hairline) 0 1px,
+    transparent 1px 0.5rem
+  );
+}
+
+/* Steps the direct children of an element in, one `--duration-instant` apart.
+   Applied to a grid inside a `Reveal`; see `staggerChildren` in
+   components/motion/reveal.tsx.
+
+   The whole entrance lives in here rather than being composed from a string of
+   `*:` utilities at the call site. Both work; this keeps the delays and the
+   animation they are delaying in one place, where they cannot drift apart, and
+   leaves one class at the call site instead of six.
+
+   Delays are capped at the fourth child: a stagger that keeps growing turns a
+   long list into a queue, and the reader is trying to read it, not watch it.
+   240ms is the whole budget.
+
+   Reuses tw-animate-css's `enter` keyframes and its `--tw-enter-*` inputs, but
+   writes the `animation` shorthand out rather than reaching for
+   `var(--animate-in)`. That variable is declared on `:root`, so the `var()`s
+   *inside* it are substituted there — where none of the `--tw-*` inputs are
+   set — and it inherits down already collapsed to its fallbacks. It looks like
+   it works and silently animates at 150ms with the wrong easing. Tailwind's own
+   `animate-in` utility avoids this by inlining the value into the rule, which
+   is what this does by hand.
+
+   `backwards` fill so a delayed child holds its start frame instead of
+   appearing at full opacity and then jumping back to animate. */
+@utility reveal-stagger {
+  & > * {
+    --tw-enter-opacity: 0;
+    --tw-enter-translate-y: var(--spacing);
+    animation: enter var(--duration-base) var(--ease-mech-out)
+      var(--tw-animation-delay, 0s) 1 normal backwards;
+  }
+  & > *:nth-child(2) {
+    --tw-animation-delay: var(--duration-instant);
+  }
+  & > *:nth-child(3) {
+    --tw-animation-delay: calc(var(--duration-instant) * 2);
+  }
+  & > *:nth-child(4) {
+    --tw-animation-delay: calc(var(--duration-instant) * 3);
+  }
+  & > *:nth-child(n + 5) {
+    --tw-animation-delay: calc(var(--duration-instant) * 4);
+  }
+}
+
+/* A ruler edge — hairline marks at a regular pitch, drawn as a background
+   image rather than as elements or text. Closes a block the way a bezel closes
+   an instrument panel.
+   Being a background matters: a decorative *word* at watermark contrast is
+   still text and still fails 3:1, which is how the first version of the footer
+   sign-off broke the accessibility gate. Decoration that is not text has no
+   contrast threshold to fail. */
+@utility tick-scale {
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--hairline-strong) 0 1px,
+    transparent 1px var(--tick-step, 0.75rem)
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+/* The masthead caret — the terminal's own mark, spent once, after the decoded
+   name. A square wave, never a fade: `steps(1)` holds each state and jumps,
+   which is the anchor's motion. The reduced-motion guard collapses this to a
+   single instant run with no fill, so the caret rests solid at the element's
+   own opacity — a static mark, not a flicker. */
+@utility masthead-caret {
+  animation: caret-blink 1.1s steps(1, end) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* The gauge — scroll progress as an instrument reading, drawn along the
+   header's bottom rule. Scroll-driven, so it costs no listener and no script.
+   The resting state is scaleX(0): a browser without scroll timelines never
+   scales it up, and reduced motion never opts in — both lose only decoration.
+   `both` fill so a mid-page load lands at the right reading immediately. */
+@utility scroll-gauge {
+  transform: scaleX(0);
+  transform-origin: left;
+  @media (prefers-reduced-motion: no-preference) {
+    animation: scroll-gauge linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes scroll-gauge {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 /* Oversized condensed figures — section numbering only. */
 @utility figure-condensed {
   font-family: var(--font-condensed);
@@ -481,6 +661,14 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Selection is the reader's own mark, so it takes the signal. Amber under
+     ink is the one hue pairing the system already trusts everywhere a fill
+     carries text — 11.42:1, theme-stable. */
+  ::selection {
+    background-color: var(--signal);
+    color: var(--signal-foreground);
   }
 
   /* Next 16 no longer overrides a global smooth scroll-behavior on navigation,

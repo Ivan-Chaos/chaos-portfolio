@@ -58,7 +58,7 @@ export const ProgressVersusMeter: Story = {
   render: () => (
     <div className="grid max-w-sm gap-8">
       <div>
-        <p className="label-caps mb-3 text-muted-foreground">
+        <p className="mb-3 label-caps text-muted-foreground">
           Progress — a task running to completion
         </p>
         <Progress value={62}>
@@ -68,7 +68,7 @@ export const ProgressVersusMeter: Story = {
         </Progress>
       </div>
       <div>
-        <p className="label-caps mb-3 text-muted-foreground">
+        <p className="mb-3 label-caps text-muted-foreground">
           Meter — a level in a fixed range
         </p>
         <Meter value={62}>
