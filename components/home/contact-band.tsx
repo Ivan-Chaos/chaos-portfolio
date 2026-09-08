@@ -6,23 +6,26 @@ import { Band } from "./band";
 import { ReadoutList, ReadoutRow } from "./readout";
 
 /**
- * Band 07 — how to make contact.
+ * Band 08 — how to make contact.
  *
  * **No form.** A form needs a backend, a spam story and a success state before
  * it is anything other than a worse `mailto:`. Every comparable site reaches
  * the same conclusion.
  *
- * **The call to action is `outline`, not `signal`.** The amber is spent in the
- * masthead, on the current-position mark and on the current role in the
- * timeline. A fourth would stop the accent meaning "the one important thing" —
- * and by the time a reader is at band 07, they did not need persuading to get
- * here.
+ * **The call to action is `outline`, not `signal`.** The amber is spent four
+ * times already: the masthead's current-position mark, the masthead CTA, the
+ * current role in the timeline, and the scroll gauge on the header's rule. A
+ * fifth would stop the accent meaning "the one important thing" — and by the
+ * time a reader is at band 08, they did not need persuading to get here.
+ *
+ * That is also why the News band above spends none, and why the current-route
+ * marking in the header is ink rather than amber.
  */
 function ContactBand() {
   return (
     <Band
       id="contact"
-      index="07"
+      index="08"
       title="Contact"
       description="Email is the one that gets read."
     >

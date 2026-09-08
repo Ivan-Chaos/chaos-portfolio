@@ -3,20 +3,13 @@ Running at ten times speed means ten integration steps per frame, and each step 
 all-pairs force summation. A system that was comfortable at one times speed was dropping frames at
 ten, and the presets I had just added were the largest systems yet built.
 
-<img
-  src="/news/planetar/optimisation-profile.svg"
-  width={1600}
-  height={900}
-  alt="A frame profile under load, with the force summation dominating the budget."
-/>
-
 ## The shape of the cost
 
 Nothing here is a mystery. The force summation is O(n²) by construction — every body pulls on every
 other — and the number of distinct pairs is:
 
 ```
-pairs = n(n−1)/2
+pairs = n(n-1)/2
 ```
 
 Which is the whole problem in one line, because it is quadratic in a place where the input grows:
@@ -93,13 +86,6 @@ bought back the frame budget at the system sizes that actually exist in the app,
 overhead that only starts paying at sizes those presets do not reach yet. The point at which that
 stops being true is a measurement, not a guess — which is why the profile above is the part of this
 work worth keeping.
-
-<img
-  src="/news/planetar/optimisation-traces.svg"
-  width={1600}
-  height={900}
-  alt="Orbital traces drawn at the adjusted width, thin enough to keep long paths readable."
-/>
 
 ## The other half: drawing
 

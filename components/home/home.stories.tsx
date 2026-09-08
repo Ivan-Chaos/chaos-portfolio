@@ -3,21 +3,21 @@ import { expect, within } from "storybook/test";
 import { Container } from "@/components/ui/layout";
 import { capabilities } from "@/content/capabilities";
 import { credentials } from "@/content/education";
+import { dispatches, LATEST_DISPATCH_COUNT } from "@/content/dispatches";
 import { engagements } from "@/content/engagements";
 import { instruments } from "@/content/instruments";
 import { email, gitHubUrl, linkedInUrl } from "@/content/profile";
 import { readings } from "@/content/readings";
 import { roles } from "@/content/roles";
-import { BANDS } from "./bands";
+import { BANDS, bandHref } from "./bands";
 import { CapabilitiesBand } from "./capabilities-band";
 import { ContactBand } from "./contact-band";
 import { EducationBand } from "./education-band";
 import { EngagementsBand } from "./engagements-band";
 import { MastheadBand } from "./masthead-band";
+import { NewsBand } from "./news-band";
 import { PracticeBand } from "./practice-band";
 import { ReadoutBand } from "./readout-band";
-import { SiteFooter } from "./site-footer";
-import { SiteHeader } from "./site-header";
 import { TrackRecordBand } from "./track-record-band";
 
 /**
@@ -47,6 +47,10 @@ import { TrackRecordBand } from "./track-record-band";
  *
  * Bands are wrapped in `Container` because that is how the page composes them —
  * a band with no gutter is not a band anyone will ever see.
+ *
+ * The header and footer stories moved to `components/shell/shell.stories.tsx`
+ * when those components moved out of `components/home/` — they render on every
+ * route now, so they are not the home page's.
  */
 const meta = {
   title: "Home",
@@ -56,27 +60,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/* ── Header and masthead ─────────────────────────────────────────────────── */
-
-export const Header: Story = {
-  render: () => <SiteHeader />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    expect(canvas.getByRole("link", { name: "Ivan Chaus" })).toHaveAttribute(
-      "href",
-      "#main",
-    );
-
-    // Named, so a screen reader user can tell this nav from any other.
-    const nav = canvas.getByRole("navigation", { name: "Sections" });
-    expect(within(nav).getAllByRole("link")).toHaveLength(3);
-
-    // The theme control lives in the footer and nowhere else. A preference
-    // switch does not earn a permanent seat in a 56px sticky bar.
-    expect(canvas.queryByRole("group", { name: "Theme" })).toBeNull();
-  },
-};
+/* ── Masthead ────────────────────────────────────────────────────────────── */
 
 export const Masthead: Story = {
   render: () => (
@@ -96,7 +80,8 @@ export const Masthead: Story = {
     // A link that looks like a button stays a link — middle-click, Cmd-click
     // and copy-link all keep working, which a Button with a handler loses.
     const primary = canvas.getByRole("link", { name: "See the work" });
-    expect(primary).toHaveAttribute("href", "#engagements");
+    // Root-relative, like every band link. See `bandHref`.
+    expect(primary).toHaveAttribute("href", "/#engagements");
 
     // A mail client is not a new tab.
     const mail = canvas.getByRole("link", { name: "Email" });
@@ -115,12 +100,12 @@ export const Masthead: Story = {
     for (const band of BANDS) {
       expect(
         within(index).getByRole("link", { name: band.title }),
-      ).toHaveAttribute("href", `#${band.id}`);
+      ).toHaveAttribute("href", bandHref(band.id));
     }
   },
 };
 
-/* ── Bands 01–07 ─────────────────────────────────────────────────────────── */
+/* ── Bands 01–08 ─────────────────────────────────────────────────────────── */
 
 export const Readout: Story = {
   render: () => (
@@ -254,6 +239,44 @@ export const Education: Story = {
   },
 };
 
+export const News: Story = {
+  render: () => (
+    <Container>
+      <NewsBand />
+    </Container>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const rows = canvasElement.querySelectorAll("[data-slot='dispatch-row']");
+    expect(rows).toHaveLength(LATEST_DISPATCH_COUNT);
+
+    // One link per row, named by the headline and nothing else. The date sits
+    // outside the anchor precisely so it does not join the accessible name —
+    // "24 Aug 2026 One direction, held" is not what this link is called.
+    for (const dispatch of dispatches.slice(0, LATEST_DISPATCH_COUNT)) {
+      const link = canvas.getByRole("link", { name: dispatch.title });
+      expect(link).toHaveAttribute("href", `/news/${dispatch.slug}`);
+      expect(link).toHaveAccessibleName(dispatch.title);
+      expect(
+        canvas.getByRole("heading", { level: 3, name: dispatch.title }),
+      ).toBeInTheDocument();
+    }
+
+    // The band is a teaser, so no topic badges — they are the index's.
+    expect(canvasElement.querySelectorAll("[data-slot='badge']")).toHaveLength(
+      0,
+    );
+
+    // A quiet text link, not a third button competing with the masthead's
+    // signal CTA and Contact's outline one.
+    expect(canvas.getByRole("link", { name: /All news/ })).toHaveAttribute(
+      "href",
+      "/news",
+    );
+  },
+};
+
 export const Contact: Story = {
   render: () => (
     <Container>
@@ -282,32 +305,5 @@ export const Contact: Story = {
     expect(
       canvas.getByRole("link", { name: "Start a conversation" }),
     ).toBeInTheDocument();
-  },
-};
-
-/* ── Footer ──────────────────────────────────────────────────────────────── */
-
-export const Footer: Story = {
-  render: () => <SiteFooter />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // The theme control lives here and only here. This assertion and the one
-    // in `Header` are a pair — together they pin the decision, so moving the
-    // toggle back into the header fails the run rather than passing quietly.
-    const themeGroup = canvas.getByRole("group", { name: "Theme" });
-    expect(within(themeGroup).getAllByRole("button")).toHaveLength(3);
-
-    const sections = canvas.getByRole("navigation", { name: "All sections" });
-    expect(within(sections).getAllByRole("link")).toHaveLength(BANDS.length);
-
-    expect(canvas.getByRole("link", { name: /GitHub/ })).toHaveAttribute(
-      "rel",
-      "noopener noreferrer",
-    );
-    expect(canvas.getByRole("link", { name: /Top/ })).toHaveAttribute(
-      "href",
-      "#main",
-    );
   },
 };

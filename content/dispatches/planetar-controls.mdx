@@ -2,15 +2,9 @@ A simulation you cannot steer is a screensaver. The engine had been producing co
 day, and watching them was still unpleasant: one fixed viewport, one speed, and no way to follow
 anything that left the frame.
 
-So this was a day of controls. More speed options, map drag, better zoom, and an arcade mode. None of
-it is physics, and all of it is the difference between a demo and something you actually sit with.
-
-<img
-  src="/news/planetar/controls-zoom.svg"
-  width={1600}
-  height={900}
-  alt="The simulation zoomed in on a two-body pair, with the surrounding grid scaled to match."
-/>
+So this was a day of controls. More speed options, map drag, better zoom, and an arcade mode. Most of
+it is interface rather than physics — and the last one is the exception, which is why it is called
+what it is called.
 
 ## Zoom that keeps the point under the cursor
 
@@ -72,42 +66,55 @@ per frame:  repeat N times ->  step(Δt)
 times the work rather than ten times the error — which is a real cost, and it is a large part of why
 optimisation became its own problem a few days later.
 
-<img
-  src="/news/planetar/controls-arcade.svg"
-  width={1600}
-  height={900}
-  alt="Arcade mode: one body under direct thrust control, its trace curving away from the others."
-/>
-
 ## Arcade mode
 
-The one control that is not a camera control. Arcade mode hands you one body and lets you apply
-thrust to it directly, while everything else keeps obeying the same rules it always did.
+The one control that is not a camera control, and the one that is not honest either. Arcade mode
+multiplies gravity by fifty.
 
-It is a single extra term in that body's acceleration:
-
-```
-a[i] = a_gravity(i) + a_thrust
-```
-
-What makes it worth having is not that it is a game. It is that it turns the simulation into an
-instrument you can ask questions with. Fire retrograde at periapsis and watch the far side of the
-orbit drop — that is one keypress, and it teaches more about orbital mechanics than any static
-diagram, because you get the counterintuitive part immediately: thrusting _forward_ raises the orbit
-on the opposite side, not the side you are on.
-
-The vis-viva equation is the reason, and it is worth writing down because it explains the whole
-feeling of flying in it:
+It is a single constant, and that is the whole implementation:
 
 ```
-v² = GM (2/r − 1/a)
+G_arcade = 50 · G
 ```
 
-Speed depends on where you are (`r`) and on the size of the orbit (`a`). Adding speed cannot change
-where you are, so it has to change `a` — the orbit grows, and it grows away from you.
+The reason it exists is impatience. A system with plausible masses and distances evolves at a pace
+that is correct and slow — you set something up, and then you wait to find out whether it holds. The
+steps-per-frame lever above solves that properly, and it costs fifty times the arithmetic to get
+fifty times the pace. Cranking `G` costs nothing.
+
+**But it is not a fast-forward, and the difference is the interesting part.** More steps per frame
+computes the _same_ trajectory sooner. Multiplying `G` computes a _different_ trajectory. The system
+you are watching in arcade mode is not the one you built, played faster — it is a system in a
+universe where gravity is fifty times stronger.
+
+Kepler's third law says how much faster that universe runs:
+
+```
+T² = 4π²a³ / GM        ->        T ∝ 1 / sqrt(G)
+```
+
+So fifty times the gravity is about seven times the pace, not fifty — and only for a system whose
+velocities were chosen for it.
+
+Existing systems were not. Circular velocity is `v = sqrt(GM / r)`, so a body that was in a clean
+circle is suddenly at about a seventh of the speed its orbit now requires:
+
+```
+v_needed / v_actual = sqrt(50) ~ 7.07
+```
+
+Which means everything falls inward. Orbits collapse into steep ellipses, near-misses become
+collisions, and bodies that were comfortably escaping get caught — escape velocity went up by the
+same factor. Turn it on and a tidy solar system becomes a pile-up.
+
+That is a defect if you read the mode as a fast-forward and a feature if you read it as what it is:
+the button that stops the simulation pretending. It is also genuinely useful, because seven times the
+pace and a hard shove inward is a quick way to find out whether a configuration was ever stable or
+merely had not fallen over yet.
 
 ## What this bought
 
-Nothing here changed a single number the engine produces. It changed whether the numbers are worth
+The camera work changed nothing the engine produces — it changed whether the numbers are worth
 watching, which turned out to be the thing standing between a working integrator and a project I
-wanted to keep opening.
+wanted to keep opening. Arcade mode is the opposite: it changes the numbers on purpose, and it is
+the only place in the project that does.

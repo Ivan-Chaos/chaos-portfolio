@@ -6,10 +6,10 @@ The idea: a browser sandbox where you place bodies, give them mass and a shove, 
 gravity between them does. Not a visualiser playing back a precomputed path. An actual integrator,
 running every frame, where nothing is scripted and a system either holds together or it does not.
 
-<img
-  src="/news/planetar/first-orbit-two-body.svg"
-  width={1600}
-  height={900}
+<Figure
+  src="/news/planetar/first-orbit-two-body.jpg"
+  width={1551}
+  height={1069}
   alt="Two bodies and one closed elliptical orbit, plotted on a hairline grid."
 />
 
@@ -109,13 +109,6 @@ p[n+1] = p[n] + v[n+1] Δt
 ```
 
 Same cost, dramatically better behaviour. It is the cheapest correctness win in the whole project.
-
-<img
-  src="/news/planetar/first-orbit-field.svg"
-  width={1600}
-  height={900}
-  alt="The gravitational field sampled across a grid, with vector magnitude falling off from the central mass."
-/>
 
 ## What a first prototype is for
 

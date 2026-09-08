@@ -5,7 +5,7 @@ import { Icon } from "@/components/ui/icon";
 import { Link } from "@/components/ui/link";
 import { Heading, Kicker, Text } from "@/components/ui/typography";
 import { email, gitHubUrl, linkedInUrl, profile } from "@/content/profile";
-import { BANDS } from "./bands";
+import { BANDS, bandHref } from "./bands";
 
 /**
  * The unnumbered opening band.
@@ -73,7 +73,7 @@ function MastheadBand() {
           {/* The one amber button on the page. A second would stop the first
               meaning "start here". */}
           <Link
-            href="#engagements"
+            href={bandHref("engagements")}
             variant="unstyled"
             className={buttonVariants({
               variant: "signal",
@@ -126,7 +126,7 @@ function MastheadBand() {
                 className="border-b border-hairline last:border-b-0"
               >
                 <Link
-                  href={`#${band.id}`}
+                  href={bandHref(band.id)}
                   variant="unstyled"
                   className="flex w-full items-baseline gap-3 px-4 py-2.5 text-xs transition-colors duration-(--duration-fast) hover:bg-accent hover:text-signal-text"
                 >

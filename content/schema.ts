@@ -127,3 +127,49 @@ export type ContactMethod = {
   /** Where it goes. Omitted for a method that is not a link, such as location. */
   href?: string;
 };
+
+/**
+ * An optional cover for a dispatch.
+ *
+ * Dimensions are stored because `next/image` needs them for a local file, and
+ * an image without them is a layout-shift bug rather than a missing nicety.
+ */
+export type DispatchCover = {
+  /** Root-relative path under `public/`. */
+  src: string;
+  /** Never empty — a cover with nothing to say would not be a cover. */
+  alt: string;
+  width: number;
+  height: number;
+};
+
+/**
+ * One written piece.
+ *
+ * The body is not here: it is `content/dispatches/<slug>.mdx`, and a test
+ * asserts the two agree in both directions. See
+ * docs/adr/0008-dispatch-metadata-in-typescript.md for why they are separate
+ * files — the short version is that keeping metadata in TypeScript is what lets
+ * the index page and the home band stay synchronous server components, and
+ * therefore renderable by Testing Library.
+ *
+ * `published` is a full ISO date rather than the `YYYY-MM` a `Range` uses,
+ * because a dispatch happens on a day. `publishedLabel` is written out rather
+ * than formatted, for exactly the reason `Range` gives: `Intl` renders month
+ * abbreviations differently per runtime, and nothing here is ever derived from
+ * the clock.
+ */
+export type Dispatch = {
+  /** The URL segment and the MDX filename. Same shape as an id. */
+  slug: string;
+  title: string;
+  /** ISO `YYYY-MM-DD`. Sorts lexicographically; fed to `<time dateTime>`. */
+  published: string;
+  /** How the date reads — `"7 Sep 2026"`. */
+  publishedLabel: string;
+  /** One or two sentences. Chrome, never `Prose` — see CONTEXT.md's Standfirst. */
+  standfirst: string;
+  /** Named subjects, in the order they matter. Labels, never links. */
+  topics: readonly string[];
+  cover?: DispatchCover;
+};

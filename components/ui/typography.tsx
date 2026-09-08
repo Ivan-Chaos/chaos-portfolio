@@ -101,7 +101,17 @@ function Text({
  *
  * The measure is capped because `prose-face` sets a larger size than the chrome
  * around it, and unbounded line length is the actual readability problem the
- * face switch was made to solve.
+ * face switch was made to solve. Do not override it to `max-w-none` on the one
+ * page that most needs it.
+ *
+ * The rules below are only what a paragraph and a link need, because that is
+ * all this component ever wrapped until dispatches existed. An MDX body's
+ * blocks — headings, lists, blockquotes, fences, captions — are styled by the
+ * element map in `components/news/prose-components.tsx` instead, through the
+ * real primitives rather than a chain of arbitrary variants. **Do not move
+ * those rules here.** The ones below are descendant selectors and would
+ * outrank any class the map sets on the element itself, so the two cannot both
+ * exist: whichever is here silently wins.
  */
 function Prose({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -205,6 +215,19 @@ function Code({ className, ...props }: React.ComponentProps<"code">) {
   );
 }
 
+/**
+ * The shared appearance of a code block — sunken ground, 1px hairline, square.
+ *
+ * Exported for the same reason `controlSurface` is exported from the Input
+ * module: there is a second renderer of this surface that cannot reuse the
+ * component. MDX nests a fence's own `<code>` inside the `<pre>` it emits, and
+ * `CodeBlock` supplies a `<code>` of its own, so mapping `pre` to it would
+ * produce `<pre><code><code>`. `components/news/prose-components.tsx` renders
+ * its own `<pre>` with this string instead, and cannot drift away from it.
+ */
+const codeSurface =
+  "overflow-x-auto border border-hairline bg-surface-sunken p-3 text-xs [font-variant-ligatures:normal]";
+
 function CodeBlock({
   className,
   children,
@@ -216,10 +239,7 @@ function CodeBlock({
       // `tabindex=0` so a keyboard user can scroll an overflowing block —
       // without it the content is reachable by mouse only.
       tabIndex={0}
-      className={cn(
-        "overflow-x-auto border border-hairline bg-surface-sunken p-3 text-xs [font-variant-ligatures:normal]",
-        className,
-      )}
+      className={cn(codeSurface, className)}
       {...props}
     >
       <code>{children}</code>
@@ -236,6 +256,7 @@ export {
   Numeral,
   Code,
   CodeBlock,
+  codeSurface,
   headingVariants,
   textVariants,
 };

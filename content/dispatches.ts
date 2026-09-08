@@ -45,32 +45,32 @@ export const dispatches: readonly Dispatch[] = [
   },
   {
     slug: "planetar-density-and-mass",
-    title: "Density, and why planets are the wrong size",
+    title: "PROJECT UPDATE: Density, and why planets are the wrong size",
     published: "2026-08-16",
     publishedLabel: "16 Aug 2026",
     standfirst:
       "Mass and radius were independent numbers in Planetar, so the picture on screen could contradict the physics behind it. Tying them together with density, and rebuilding the presets around real mass ratios.",
-    topics: ["Planetar", "Physics", "Simulation"],
+    topics: ["Personal projects", "Work in progress"],
     cover: {
-      src: "/news/planetar/density-cover.svg",
-      alt: "Placeholder: the planet editor with a density control, and a system whose body sizes follow from mass.",
-      width: 1200,
-      height: 675,
+      src: "/news/planetar/density-cover.png",
+      alt: "The planet editor with a density control, and a system whose body sizes follow from mass.",
+      width: 2553,
+      height: 1338,
     },
   },
   {
     slug: "planetar-on-github-pages",
-    title: "Planetar has an address",
+    title: "PROJECT UPDATE: Planetar has an address",
     published: "2026-07-22",
     publishedLabel: "22 Jul 2026",
     standfirst:
       "Deploying a Next.js app to GitHub Pages as a static export, and the sub-path problem that quietly breaks every asset URL until you tell the build where it lives.",
-    topics: ["Planetar", "Next.js", "Deployment"],
+    topics: ["Personal projects", "Work in progress"],
     cover: {
-      src: "/news/planetar/deploy-cover.svg",
-      alt: "Placeholder: the deployed simulation running at its public GitHub Pages URL.",
-      width: 1200,
-      height: 675,
+      src: "/news/planetar/deploy-cover.png",
+      alt: "The deployed simulation running at its public GitHub Pages URL.",
+      width: 2506,
+      height: 1029,
     },
   },
   {
@@ -90,62 +90,62 @@ export const dispatches: readonly Dispatch[] = [
   },
   {
     slug: "planetar-engine-optimization",
-    title: "Nineteen thousand pairs a frame",
+    title: "PROJECT UPDATE: Nineteen thousand pairs a frame",
     published: "2026-07-05",
     publishedLabel: "5 Jul 2026",
     standfirst:
       "An all-pairs gravity summation is quadratic by construction, and the speed controls had made that impossible to ignore. Halving the constant, removing a square root, and knowing where the real ceiling is.",
-    topics: ["Planetar", "Performance", "Simulation"],
+    topics: ["Personal projects", "Work in progress"],
     cover: {
-      src: "/news/planetar/optimisation-cover.svg",
-      alt: "Placeholder: a frame profile showing the cost of the force summation before and after.",
-      width: 1200,
-      height: 675,
+      src: "/news/planetar/optimisation-cover.png",
+      alt: "A frame profile showing the cost of the force summation before and after.",
+      width: 1269,
+      height: 1099,
     },
   },
   {
     slug: "planetar-systems-import-export",
-    title: "A system is just its initial conditions",
+    title: "PROJECT UPDATE: A system is just its initial conditions",
     published: "2026-07-02",
     publishedLabel: "2 Jul 2026",
     standfirst:
       "Saving and loading planetary systems, which turns out to be a very short file — plus the predefined systems that came almost free once import existed.",
-    topics: ["Planetar", "Simulation", "Data"],
+    topics: ["Personal projects", "Work in progress"],
     cover: {
-      src: "/news/planetar/systems-cover.svg",
-      alt: "Placeholder: a system being exported, with its serialised body list beside the running simulation.",
-      width: 1200,
-      height: 675,
+      src: "/news/planetar/systems-cover.png",
+      alt: "A system being exported, with its serialised body list beside the running simulation.",
+      width: 2545,
+      height: 1336,
     },
   },
   {
     slug: "planetar-controls",
-    title: "A simulation you cannot steer is a screensaver",
+    title: "PROJECT UPDATE: A simulation you cannot steer is a screensaver",
     published: "2026-06-30",
     publishedLabel: "30 Jun 2026",
     standfirst:
       "Zoom that keeps the point under the cursor, drag to pan, speed that does not break the integrator, and an arcade mode that teaches orbital mechanics faster than any diagram.",
-    topics: ["Planetar", "Interaction", "Simulation"],
+    topics: ["Personal projects", "Work in progress"],
     cover: {
-      src: "/news/planetar/controls-cover.svg",
-      alt: "Placeholder: the simulation zoomed in, with a body under direct thrust control.",
-      width: 1200,
-      height: 675,
+      src: "/news/planetar/control-cover.png",
+      alt: "The simulation zoomed in on a system, with the camera controls in use.",
+      width: 2551,
+      height: 1335,
     },
   },
   {
     slug: "planetar-first-orbit",
-    title: "Writing a gravity engine from scratch",
+    title: "PROJECT UPDATE: Writing a gravity engine from scratch",
     published: "2026-06-29",
     publishedLabel: "29 Jun 2026",
     standfirst:
       "Starting Planetar, and why a general physics library was the wrong tool for it. Newton's law, the singularity you have to soften, and the two-line change that stops orbits spiralling apart.",
-    topics: ["Planetar", "Physics", "Engine"],
+    topics: ["Personal projects", "Work in progress"],
     cover: {
-      src: "/news/planetar/first-orbit-cover.svg",
-      alt: "Placeholder: the first closed two-body orbit plotted by the engine.",
-      width: 1200,
-      height: 675,
+      src: "/news/planetar/first-orbit-cover.png",
+      alt: "The first closed two-body orbit plotted by the engine.",
+      width: 2548,
+      height: 1335,
     },
   },
   {
@@ -174,7 +174,7 @@ export const LATEST_DISPATCH_COUNT = 3;
  * a page is a string typed into a component.
  */
 export const newsStandfirst =
-  "Notes on architecture, rendering and design systems. Written when something was actually learned, which is why there are not many.";
+  "News about what I've been doing and how's it been going";
 
 /** The dispatch with this slug, or `undefined`. */
 export function findDispatch(slug: string) {

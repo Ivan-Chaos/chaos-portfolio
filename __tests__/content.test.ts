@@ -1,5 +1,13 @@
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { capabilities } from "@/content/capabilities";
+import {
+  dispatches,
+  LATEST_DISPATCH_COUNT,
+  newsStandfirst,
+} from "@/content/dispatches";
 import { credentials } from "@/content/education";
 import { engagements } from "@/content/engagements";
 import { practiceFacts, practiceParagraphs } from "@/content/practice";
@@ -24,6 +32,29 @@ import type { Range } from "@/content/schema";
 
 /** `YYYY-MM` sorts lexicographically, which is the whole reason for the format. */
 const ISO_MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+/** `YYYY-MM-DD`, and it sorts for the same reason. A dispatch happens on a day. */
+const ISO_DAY = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+
+/** Ids and slugs both reach the DOM, so both have to be URL-safe and lowercase. */
+const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+/**
+ * Resolved from this file rather than `process.cwd()`, so the suite does not
+ * depend on where Vitest was started from.
+ *
+ * `fileURLToPath` is handed the raw string, not `new URL(...)`. Under the
+ * jsdom environment the global `URL` is jsdom's own implementation, and Node's
+ * `fileURLToPath` rejects one of those with "The URL must be of scheme file"
+ * even when the protocol plainly is `file:`.
+ */
+const CONTENT_DIR = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "content",
+);
+const DISPATCH_DIR = path.join(CONTENT_DIR, "dispatches");
+const PUBLIC_DIR = path.join(CONTENT_DIR, "..", "public");
 
 function checkRange(range: Range) {
   expect(range.start).toMatch(ISO_MONTH);
@@ -180,5 +211,281 @@ describe("practice", () => {
       expect(fact.term.length).toBeGreaterThan(0);
       expect(fact.definition.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("dispatches", () => {
+  it("has unique slugs shaped like ids", () => {
+    const slugs = dispatches.map((dispatch) => dispatch.slug);
+    expect(new Set(slugs).size).toBe(slugs.length);
+    for (const slug of slugs) expect(slug).toMatch(SLUG);
+  });
+
+  it("is ordered newest first", () => {
+    const published = dispatches.map((dispatch) => dispatch.published);
+    expect([...published].sort().reverse()).toEqual(published);
+  });
+
+  it("dates every dispatch, with a hand-written label", () => {
+    for (const dispatch of dispatches) {
+      expect(dispatch.published).toMatch(ISO_DAY);
+      // Written out, not formatted: `Intl` renders month names differently per
+      // runtime, and nothing on this site is derived from the clock.
+      expect(dispatch.publishedLabel.length).toBeGreaterThan(0);
+      expect(dispatch.publishedLabel).not.toMatch(ISO_DAY);
+    }
+  });
+
+  it("gives every dispatch a title, a standfirst and a topic", () => {
+    for (const dispatch of dispatches) {
+      expect(dispatch.title.length).toBeGreaterThan(0);
+      expect(dispatch.standfirst.length).toBeGreaterThan(40);
+      expect(dispatch.topics.length).toBeGreaterThan(0);
+      expect(new Set(dispatch.topics).size).toBe(dispatch.topics.length);
+    }
+  });
+
+  it("describes every cover it has", () => {
+    for (const { cover } of dispatches) {
+      if (!cover) continue;
+      // A cover with an empty alt is decoration, and decoration does not get to
+      // be the LCP element of an article. The dimensions are what `next/image`
+      // needs to reserve the space before the file arrives.
+      expect(cover.alt.length).toBeGreaterThan(0);
+      expect(cover.src.startsWith("/")).toBe(true);
+      expect(cover.width).toBeGreaterThan(0);
+      expect(cover.height).toBeGreaterThan(0);
+    }
+  });
+
+  it("has at least as many as the home page band shows", () => {
+    // The band slices three. Fewer would render a short band nobody looked at,
+    // which is how a page ends up with a hole in it — and there is no empty
+    // state anywhere in this content layer.
+    expect(dispatches.length).toBeGreaterThanOrEqual(LATEST_DISPATCH_COUNT);
+  });
+
+  it("has a standfirst for the index page", () => {
+    expect(newsStandfirst.length).toBeGreaterThan(40);
+  });
+});
+
+describe("dispatch bodies", () => {
+  /**
+   * The drift guard for docs/adr/0008. Metadata lives in
+   * `content/dispatches.ts` and the body is an `.mdx` beside it, so the two can
+   * disagree — and neither Vitest nor Storybook compiles MDX, so nothing else
+   * in `pnpm check` would notice.
+   */
+  const files = readdirSync(DISPATCH_DIR).filter((name) =>
+    name.endsWith(".mdx"),
+  );
+
+  it("has exactly one body per dispatch, and no orphans", () => {
+    expect(files.map((name) => name.replace(/\.mdx$/, "")).sort()).toEqual(
+      dispatches.map((dispatch) => dispatch.slug).sort(),
+    );
+  });
+
+  it("keeps metadata, the h1 and markdown images out of every body", () => {
+    for (const name of files) {
+      const source = readFileSync(path.join(DISPATCH_DIR, name), "utf8");
+      expect(source.trim().length).toBeGreaterThan(0);
+
+      // The second source of truth docs/adr/0008 exists to avoid.
+      expect(source).not.toMatch(/export\s+const\s+metadata/);
+
+      // The `h1` is the dispatch title, rendered by the page chrome. A `# `
+      // here puts two of them on the page and breaks the heading outline —
+      // which is also why the element map has no `h1` entry.
+      expect(source).not.toMatch(/^#\s/m);
+
+      // A markdown image carries no dimensions, so it cannot go through
+      // `next/image` without a layout shift. Write the `<img src width height
+      // alt>` tag and the element map turns it into an `Image`.
+      expect(source).not.toMatch(/!\[[^\]]*\]\(/);
+    }
+  });
+
+  it("keeps content/dispatches.ts free of MDX imports", () => {
+    // If that module ever imports an `.mdx`, the MDX pipeline reaches the unit
+    // Vitest project through news-band.tsx to app/page.tsx to
+    // app/page.test.tsx — and no Vitest project knows how to compile one.
+    //
+    // Comments are stripped first, because the module's own docstring quotes
+    // the forbidden import as the example of what not to write. The guard is
+    // about code; documenting the rule must not trip it. The strip is naive —
+    // it would mangle a `*/` inside a string literal — which is fine for a
+    // module that is a typed array and nothing else.
+    const source = readFileSync(path.join(CONTENT_DIR, "dispatches.ts"), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/.*$/gm, "");
+
+    expect(source).not.toMatch(/(?:from\s*|import\s*\(\s*)["'`][^"'`]*\.mdx/);
+  });
+});
+
+/**
+ * Intrinsic dimensions of an image file, without a dependency.
+ *
+ * Only the three formats this site actually uses. Returns `null` for anything
+ * else, so a new format fails the assertion loudly rather than passing
+ * vacuously.
+ */
+function imageSize(file: string): { width: number; height: number } | null {
+  const buf = readFileSync(file);
+
+  if (file.endsWith(".png")) {
+    // IHDR is the first chunk, and its width and height are big-endian at a
+    // fixed offset.
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+  }
+
+  if (file.endsWith(".jpg") || file.endsWith(".jpeg")) {
+    // Walk the segment markers to the start-of-frame, which is the only one
+    // carrying the dimensions.
+    let offset = 2;
+    while (offset < buf.length) {
+      if (buf[offset] !== 0xff) {
+        offset += 1;
+        continue;
+      }
+      const marker = buf[offset + 1];
+      const isFrame =
+        marker >= 0xc0 &&
+        marker <= 0xcf &&
+        ![0xc4, 0xc8, 0xcc].includes(marker);
+      if (isFrame) {
+        return {
+          height: buf.readUInt16BE(offset + 5),
+          width: buf.readUInt16BE(offset + 7),
+        };
+      }
+      offset += 2 + buf.readUInt16BE(offset + 2);
+    }
+    return null;
+  }
+
+  if (file.endsWith(".svg")) {
+    const source = buf.toString("utf8");
+    const width = source.match(/\bwidth="(\d+)"/);
+    const height = source.match(/\bheight="(\d+)"/);
+    if (!width || !height) return null;
+    return { width: Number(width[1]), height: Number(height[1]) };
+  }
+
+  return null;
+}
+
+/**
+ * Every image a dispatch body declares, with the numbers it declares.
+ *
+ * `<Figure>`, capitalised, because a lowercase JSX tag in MDX compiles to the
+ * intrinsic element and never reaches the component map — see the entry in
+ * `components/news/prose-components.tsx`. Parsing for a lowercase tag here
+ * would find nothing and pass every assertion below vacuously.
+ */
+function bodyImages(slug: string) {
+  const source = readFileSync(path.join(DISPATCH_DIR, `${slug}.mdx`), "utf8");
+  return [...source.matchAll(/<Figure\s[^>]*?\/>/g)].map((match) => {
+    const tag = match[0];
+    const src = tag.match(/src="([^"]+)"/);
+    const width = tag.match(/width=\{(\d+)\}/);
+    const height = tag.match(/height=\{(\d+)\}/);
+    return {
+      src: src?.[1],
+      width: width ? Number(width[1]) : undefined,
+      height: height ? Number(height[1]) : undefined,
+    };
+  });
+}
+
+describe("dispatch images", () => {
+  /**
+   * The guard on swapping a placeholder for a real screenshot.
+   *
+   * `next/image` reserves space from the declared width and height, and the
+   * body images set `w-full h-auto` — so a declared aspect ratio that does not
+   * match the file stretches the image rather than letterboxing it. Nothing
+   * about that fails a build, and it is exactly the step that gets forgotten
+   * when a placeholder is replaced.
+   */
+  const declared = [
+    ...dispatches
+      .filter((dispatch) => dispatch.cover)
+      .map((dispatch) => ({
+        where: `${dispatch.slug} cover`,
+        ...dispatch.cover!,
+      })),
+    ...dispatches.flatMap((dispatch) =>
+      bodyImages(dispatch.slug).map((image, index) => ({
+        where: `${dispatch.slug} body image ${index + 1}`,
+        ...image,
+      })),
+    ),
+  ];
+
+  it("uses Figure rather than a raw img in every body", () => {
+    for (const dispatch of dispatches) {
+      const source = readFileSync(
+        path.join(DISPATCH_DIR, `${dispatch.slug}.mdx`),
+        "utf8",
+      );
+      // A lowercase `<img>` renders as a bare tag: no `next/image`, no `sizes`,
+      // no border and no optimisation. Nothing else in this suite would
+      // notice, because the file it points at still exists — which is exactly
+      // how it got shipped once already.
+      expect(source, dispatch.slug).not.toMatch(/<img[\s>]/);
+    }
+  });
+
+  it("declares a src, a width and a height for every image", () => {
+    expect(declared.length).toBeGreaterThan(0);
+    for (const image of declared) {
+      expect(image.src, image.where).toBeTruthy();
+      expect(image.width, image.where).toBeGreaterThan(0);
+      expect(image.height, image.where).toBeGreaterThan(0);
+    }
+  });
+
+  it("points every image at a file that exists", () => {
+    for (const image of declared) {
+      const file = path.join(PUBLIC_DIR, image.src!);
+      expect(existsSync(file), `${image.where} -> ${image.src}`).toBe(true);
+    }
+  });
+
+  it("declares the dimensions the file actually has", () => {
+    for (const image of declared) {
+      const size = imageSize(path.join(PUBLIC_DIR, image.src!));
+      expect(
+        size,
+        `${image.where}: unreadable or unsupported format`,
+      ).not.toBeNull();
+      expect(
+        `${size!.width}x${size!.height}`,
+        `${image.where} (${image.src})`,
+      ).toBe(`${image.width}x${image.height}`);
+    }
+  });
+
+  it("keeps at most two images per dispatch, counting the cover", () => {
+    for (const dispatch of dispatches) {
+      const total = (dispatch.cover ? 1 : 0) + bodyImages(dispatch.slug).length;
+      expect(total, dispatch.slug).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it("leaves no unreferenced file in the Planetar image directory", () => {
+    const referenced = new Set(
+      declared
+        .map((image) => image.src!)
+        .filter((src) => src.startsWith("/news/planetar/"))
+        .map((src) => path.basename(src)),
+    );
+    const onDisk = readdirSync(path.join(PUBLIC_DIR, "news", "planetar"));
+    // An orphan here is a placeholder whose article stopped using it, which is
+    // dead weight in the repository and in the deployed bundle.
+    expect([...onDisk].sort()).toEqual([...referenced].sort());
   });
 });

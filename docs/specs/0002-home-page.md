@@ -17,8 +17,12 @@ domain today lands on a component gallery.
 
 ## Solution
 
-A single-scroll home page: a masthead, then seven numbered bands, read top to bottom. No second
-route, no navigation tree, no case-study pages.
+A single-scroll home page: a masthead, then eight numbered bands, read top to bottom. No navigation
+tree, no case-study pages.
+
+> **Amended by spec 0007.** This was seven bands and "no second route" when written. News is now
+> band 07, Contact renumbered to 08, and `/news` and `/news/<slug>` exist. The rest of this spec
+> stands.
 
 The organising idea is that a career reads well as a **telemetry readout** — which is the register
 the anchor already commits to. Measured claims first, then what the practice actually is, then the
@@ -36,7 +40,8 @@ contact. Every figure on the page traces to a line in a CV.
 | 04  | Track record | Three roles, reverse-chronological                                |
 | 05  | Capabilities | The stack, grouped by discipline, plus spoken languages           |
 | 06  | Education    | Two credentials                                                   |
-| 07  | Contact      | Email, LinkedIn, GitHub, location                                 |
+| 07  | News         | The three latest dispatches, and the way to all of them           |
+| 08  | Contact      | Email, LinkedIn, GitHub, location                                 |
 
 Engagements comes before Track record deliberately. The platforms are the substance and the roles
 are the context for them; several engagements ran concurrently inside a single role, so leading with
@@ -53,7 +58,7 @@ web:
 - **A rail.** From wide viewports each band's figure and title move into a fixed left column. The
   figures then line up down the page edge as a single sequence, and the content gets the width a
   stacked header would have taken.
-- **An index.** A legend beside the masthead listing all seven bands. It fills the half of a wide
+- **An index.** A legend beside the masthead listing all eight bands. It fills the half of a wide
   hero that would otherwise be empty, and it is the only place the page's whole shape is visible at
   once.
 
@@ -116,10 +121,12 @@ out changes of opacity that do not alter perceived size, shape or position — s
 permitted under reduced motion. Spec 0001 says nothing animates. Nothing animates. Loosening that is
 a spec amendment, not an implementation detail.
 
-**One signal per view is already the rule, and the page has room for three amber marks, not four.**
-They are spent on the current-position dot, the primary masthead action, and the current role in
-Track record. The contact call to action is outlined, not amber — by the time a reader reaches band
-07 the signal has done its work.
+**One signal per view is already the rule, and the page has room for a handful of amber marks and no
+more.** They are spent on the current-position dot, the primary masthead action, the current role in
+Track record, and the scroll gauge along the header's rule. The contact call to action is outlined,
+not amber — by the time a reader reaches the last band the signal has done its work. Spec 0007
+declines a fifth for the same reason: marking the current route in amber would leave it permanently
+lit on two of three pages.
 
 **No contact form.** Every comparable site uses a mail link. A form needs a backend, a spam story
 and a success state to be worse than `mailto:`.
@@ -146,9 +153,11 @@ counts for the same platform. The lower is on the page. Changing it is one edit.
 
 ## Out of scope
 
-- Case-study pages, and any route other than `/`.
+- ~~Case-study pages, and any route other than `/`.~~ Case-study pages are still out; routes are
+  superseded by spec 0007.
 - Side projects and open-source work. Client work only, by decision.
-- A blog, writing, or an RSS feed.
+- ~~A blog, writing, or an RSS feed.~~ Superseded by spec 0007 — the blog exists; a feed is still
+  out.
 - A contact form, analytics, or any backend.
 - A downloadable CV. The three source documents are tailored per-application and are not a single
   artefact to publish.

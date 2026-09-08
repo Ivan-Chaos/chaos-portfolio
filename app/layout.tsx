@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, JetBrains_Mono } from "next/font/google";
 import { PageField } from "@/components/home/page-field";
+import { SiteShell } from "@/components/shell/site-shell";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SkipLink } from "@/components/ui/skip-link";
 import { Toaster } from "@/components/ui/sonner";
@@ -23,6 +24,12 @@ const archivo = Archivo({
   variable: "--font-archivo",
   subsets: ["latin"],
   axes: ["wdth"],
+  /* Prose is the only place the proportional face is used, and prose has
+     emphasis in it. Without asking for the italic, `<em>` in a dispatch body
+     gets a *synthesised oblique* — a sheared roman, which at prose size is
+     visibly wrong in a way that is hard to name if you are not looking for it.
+     The monospace face never needed this, because chrome has no emphasis. */
+  style: ["normal", "italic"],
 });
 
 /* Absolute URLs in metadata need a base. The deployment host is not decided
@@ -44,13 +51,17 @@ export const metadata: Metadata = {
   applicationName: profile.name,
   authors: [{ name: profile.name }],
   creator: profile.name,
-  alternates: { canonical: "/" },
+  /* No `alternates.canonical` and no `openGraph.url` here, deliberately.
+     Metadata is inherited by every descendant segment, so a canonical declared
+     on the root layout would make `/news` and every dispatch claim to be `/` —
+     and the canonical is the version that gets scraped. A canonical is a
+     per-route fact and a layout is not a route, so each page declares its own.
+     `openGraph.type` moves to `app/page.tsx` for the same reason: only the home
+     page is a profile. What is left here is genuinely site-wide. */
   openGraph: {
-    type: "profile",
     siteName: profile.name,
     title: `${profile.name} — ${profile.positioning}`,
     description,
-    url: "/",
     locale: "en_GB",
   },
   twitter: {
@@ -88,7 +99,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               behind everything without a negative z-index — and therefore
               without a stacking context for Base UI's overlays to fight. */}
           <PageField />
-          <TooltipProvider>{children}</TooltipProvider>
+          {/* The header, `<main id="main">` and the footer, for every route.
+              See components/shell/site-shell.tsx and docs/adr/0007. */}
+          <TooltipProvider>
+            <SiteShell>{children}</SiteShell>
+          </TooltipProvider>
           {/* Inside ThemeProvider on purpose: the Toaster reads `useTheme()` to
               follow the active theme, and outside it that silently stops. */}
           <Toaster />

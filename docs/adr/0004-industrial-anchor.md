@@ -39,6 +39,41 @@ This is the item most likely to look like drift to a future reader, which is why
 If the scope creeps — if a heading or a button label starts setting in Archivo — the anchor has
 stopped holding and that is a bug, not an evolution.
 
+### What an MDX body takes, and what it does not
+
+A dispatch body is the first thing on this site that is unambiguously long-form prose, so it is
+where the deviation earns its place — and where the scope has to be stated element by element,
+because markdown produces a good deal more than paragraphs.
+
+The **running text** takes Archivo, through `Prose` and nothing else. Everything below stays chrome:
+
+- **Headings**, via `Heading`'s own `font-heading`, which resolves to the monospace face. A heading
+  is a structural label — the same object as a section title or a table header. If one starts
+  setting in Archivo, the boundary has moved from "running text" to "anything inside an article",
+  which is exactly the widening this section exists to prevent.
+- **Inline and fenced code**, which needs no rule at all: Tailwind's preflight sets
+  `code, kbd, samp, pre` to the mono family, `globals.css` points that at `--font-mono`, and an
+  author-origin rule on the element beats an inherited family. It looks like an omission in the
+  element map, which is why there is a comment there saying it is not.
+- **An ordered list's counter**, which does have to be asked for — `marker:font-mono`, because a
+  numeral is chrome and would otherwise inherit the face the list body legitimately has.
+- **Figure captions**, which are a label rather than running text.
+- **Every piece of a dispatch's metadata** — the kicker, the date, the standfirst, the topics. The
+  standfirst is the one that looks wrong and is not: two sentences do not accumulate the way thirty
+  paragraphs do, and a typeface change two lines under the title would spend the deviation for
+  nothing.
+
+`components/news/prose-components.tsx` is the record of that boundary. The block rules live there
+rather than on `Prose` because the two cannot both hold it: `Prose`'s rules are descendant selectors
+and would outrank any class the map sets on the element itself, so whichever is on `Prose` silently
+wins.
+
+One consequence that is easy to miss until it looks subtly wrong on screen: asking `next/font` for a
+variable axis does not get you an italic. The proportional face needs `style: ["normal", "italic"]`
+requested explicitly, or emphasis in a body resolves to a _synthesised oblique_ — a sheared roman,
+which at prose size is wrong in a way that is hard to name if you are not looking for it. The
+monospace face never needed it, because chrome has no emphasis in it.
+
 ## Signal versus status
 
 The anchor allows exactly one signal colour. A component kit still needs form errors and destructive

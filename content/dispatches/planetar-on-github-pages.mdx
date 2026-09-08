@@ -2,13 +2,6 @@ A simulation that only runs on my machine is a screenshot. This was the day Plan
 
 **[ivan-chaos.github.io/planetar-fe](https://ivan-chaos.github.io/planetar-fe/)**
 
-<img
-  src="/news/planetar/deploy-live.svg"
-  width={1600}
-  height={900}
-  alt="The deployed build running in a browser at its public URL."
-/>
-
 ## Why Pages, for this
 
 The app is a Next.js project, and the reflexive answer for a Next.js project is Vercel — the README
@@ -42,13 +35,6 @@ The other Pages-specific detail is a `.nojekyll` marker. Pages runs uploads thro
 default, and Jekyll ignores directories beginning with an underscore — which silently deletes
 `_next/`, the entire application. It is a zero-byte file that stands between a working deploy and a
 completely blank page, and it is the single most-hit trap in this whole setup.
-
-<img
-  src="/news/planetar/deploy-action.svg"
-  width={1600}
-  height={900}
-  alt="The GitHub Actions deploy workflow, all steps green."
-/>
 
 ## Deploying from Actions, not from a branch
 

@@ -175,20 +175,38 @@ export const dispatchProse: MDXComponents = {
     </figcaption>
   ),
 
-  // `next/image`, not `<img>`: `@next/next/no-img-element` is an error under
-  // `eslint-config-next/core-web-vitals`, and an image with no intrinsic
-  // dimensions is a layout-shift bug either way. Markdown's `![]()` carries no
-  // dimensions, so a body writes an `<img src width height alt>` tag and gets
-  // this; `__tests__/content.test.ts` forbids `![…](…)` so the missing
-  // dimensions fail `pnpm test` instead of shifting the page at request time.
-  img: ({ src, alt, width, height }) => (
+  /**
+   * The in-body image, and the reason it is capitalised.
+   *
+   * **A lowercase JSX tag in MDX does not go through this map.** MDX compiles
+   * `<img />` written as JSX straight to the intrinsic element; only elements
+   * markdown *generates* — from `![alt](src)` — are looked up in the component
+   * map. So a body writing `<img>` gets a bare tag: no `next/image`, no
+   * `sizes`, no border, and no optimisation. A capitalised name is compiled to
+   * `_components.Figure`, which is this.
+   *
+   * Markdown's own image syntax is not the alternative: it carries no
+   * dimensions, so it cannot reserve space and every image would shift the page
+   * as it loads. `__tests__/content.test.ts` forbids it for that reason.
+   */
+  Figure: ({
+    src,
+    alt,
+    width,
+    height,
+  }: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+  }) => (
     <Image
-      src={String(src)}
-      alt={alt ?? ""}
-      width={Number(width)}
-      height={Number(height)}
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
       sizes="(min-width: 48rem) 44rem, 100vw"
-      className="h-auto w-full border border-hairline"
+      className="my-8 h-auto w-full border border-hairline"
     />
   ),
 };

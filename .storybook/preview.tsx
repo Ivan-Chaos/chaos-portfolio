@@ -127,9 +127,12 @@ const preview: Preview = {
             "Icons",
           ],
           "Components",
-          // The page the kit exists for, below the kit itself. Its stories are
-          // the only thing that puts the home page's markup under axe.
+          // The chrome every route carries, between the kit and the pages.
+          "Shell",
+          // The pages the kit exists for, below the kit itself. Their stories
+          // are the only thing that puts page markup under axe.
           "Home",
+          "News",
           "*",
         ],
       },

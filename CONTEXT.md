@@ -73,6 +73,13 @@ The shared appearance of anything the user types into — sunken ground, 1px
 Textarea, NumberField and the date and time inputs cannot drift away from it.
 _Avoid_: input style, field style
 
+**Code surface**:
+The shared appearance of a code block — sunken ground, 1px hairline, square. Exported as
+`codeSurface` from the typography module because the MDX element map has to render its own `<pre>`
+(MDX nests a fence's `<code>` inside it, so it cannot reuse `CodeBlock`) and must not be able to
+drift away from it.
+_Avoid_: code style, pre style, snippet style
+
 **Chrome**:
 Every part of the interface that is not long-form prose — labels, buttons, inputs, headings, table
 data, numerals, code. Chrome always sets in the monospace face.
@@ -86,8 +93,8 @@ _Avoid_: body text, copy, content
 ### Page structure
 
 **Band**:
-One numbered section of a page, carrying its own figure, title and content. The home page is eight
-of them read top to bottom; the figures running 01→07 down the left edge are the structure, not
+One numbered section of a page, carrying its own figure, title and content. The home page is nine
+of them read top to bottom; the figures running 01→08 down the left edge are the structure, not
 decoration.
 _Avoid_: block, strip, region, panel, slice
 
@@ -97,9 +104,9 @@ the standfirst, and it is the only band with no figure.
 _Avoid_: hero, banner, splash, jumbotron
 
 **Standfirst**:
-The short paragraph under the positioning line that says what the work actually is. Two sentences,
-set in chrome — it is short enough that the proportional face would be spending the deviation for
-nothing.
+The short paragraph under a masthead's positioning line, or under a page head's or a dispatch's
+title, that says what the thing actually is. Two sentences, set in chrome — it is short enough that
+the proportional face would be spending the deviation for nothing.
 _Avoid_: intro, blurb, tagline, bio, summary
 
 **Rail**:
@@ -110,9 +117,24 @@ _Avoid_: sidebar, gutter (that word means the container's padding), aside
 
 **Index**:
 The legend beside the masthead listing every band by figure and title. The only place the whole
-page's shape is visible at once, and the mobile substitute for a header nav that cannot fit seven
+page's shape is visible at once, and the mobile substitute for a header nav that cannot fit eight
 links.
 _Avoid_: table of contents, menu, nav (that word means the element)
+
+**Shell**:
+The header, the focusable `<main>` and the footer, composed once in the root layout so every route
+carries the same furniture. Its band links are root-relative, because a bare `#engagements` from a
+route that is not `/` points at a fragment that route does not have.
+_Avoid_: chrome (that word is the monospace face's scope), layout, frame, furniture, template (that
+word means a Next.js `template.tsx`)
+
+**Page head**:
+The opening block of a route that is not `/` — the title as the page's `h1`, one sentence under it,
+and, where there is somewhere to go back to, a link there. The masthead's grammar one register down,
+and deliberately not a second masthead: there is exactly one of those, it carries the name, and it
+is the site's front door.
+_Avoid_: masthead (there is one), hero, page header (that phrase means the `<header>` element),
+title block
 
 **Page field**:
 The fixed hairline grid behind everything — the plotted ground an instrument is drawn on, with the
@@ -182,6 +204,19 @@ that makes the figure mean something. Every reading traces to a line in a CV; th
 approximations and no invented ones.
 _Avoid_: metric, KPI, proof point, achievement, highlight
 
+**Dispatch**:
+One published piece of writing — a slug, a stored publication date, a title, a standfirst, its
+topics, and an MDX body. Rendered under the public band and page title **News**; the code keeps the
+domain word, because "news" names a feed and a dispatch is a single filed report.
+_Avoid_: post, blog entry, entry, note, update, article (that word means the `<article>` element and
+the page that renders one)
+
+**Topic**:
+A named subject a dispatch is filed under, rendered as an outlined badge. A label and never a link —
+there are no topic archives, and a badge that reads as clickable and is not is the defect the
+engagement card was built to avoid.
+_Avoid_: tag, keyword, category (that word is an engagement's two-word description of a platform)
+
 **Credential**:
 A completed qualification, with an institution and a date range. Both are degrees; both carry a
 distinction.
@@ -215,13 +250,16 @@ _Avoid_: cursor (that word means the pointer), text cursor, prompt
 **Gauge**:
 The 2px signal line along the header's bottom rule that fills with scroll progress — the page
 reading itself out. Scroll-driven CSS with no script; it stays at zero under reduced motion and in
-browsers without scroll timelines.
+browsers without scroll timelines. It reads the document, not an article — on a dispatch page those
+are very nearly the same thing, and on the news index a full gauge is the honest reading of a page
+you have already seen all of.
 _Avoid_: progress bar, scroll indicator, reading bar
 
 **Latch**:
-The held hover state of an engagement card: accent fill, title to signal text, corner ticks
-extended to the signal edge. It closes like a relay — colours jump, only the tick length animates
-— and holds only while the pointer does.
+The held hover state of an engagement card or a dispatch row: accent fill, title to signal text,
+and, where the surface has them, corner ticks extended to the signal edge. It closes like a relay —
+colours jump, only the tick length animates — and holds only while the pointer does. A card latches
+with ticks; a ruled row latches without.
 _Avoid_: hover effect, highlight, active state
 
 ### Conventions
