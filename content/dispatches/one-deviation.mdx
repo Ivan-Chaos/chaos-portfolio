@@ -1,0 +1,91 @@
+Every label, button, input, table header, badge and numeral on this site sets in JetBrains Mono. It
+is not a code face used decoratively — it is the default UI face, declared once as
+`--default-font-family` and inherited by everything.
+
+Paragraphs like this one do not. This is Archivo, a proportional grotesk, and it is the only place
+on the site where a second typeface is permitted.
+
+That is a rule the direction I picked explicitly forbids. Industrial specifies monospace for body
+text as well as display. So this is a **deviation**: a rule the anchor states and this project
+deliberately breaks. There is exactly one, and the interesting part is not the exception itself but
+the machinery that stops it spreading.
+
+## Why break it
+
+The trade was readability against fidelity, and readability won on evidence rather than taste.
+
+Monospace paragraphs read measurably slower, and they take roughly 15% more horizontal space at the
+same nominal size. On a site whose whole purpose is to carry writing, that is a real cost paid on
+every paragraph. Fidelity to the direction is worth a lot, but it is not worth making the writing
+worse.
+
+What made this decidable rather than arguable was drawing the line somewhere specific. The project
+has two words for the two kinds of text:
+
+- **Chrome** — everything that is not long-form prose. Labels, buttons, inputs, headings, table data,
+  numerals, code. Chrome always sets in the monospace face.
+- **Prose** — long-form running text, and the only context permitted the proportional face.
+
+With those two words in place, the question stops being "does Archivo look better here" and becomes
+"is this chrome or is it prose". That has an answer.
+
+## Where it gets interesting
+
+The line runs through places I did not anticipate.
+
+### A standfirst is chrome
+
+The two-sentence summary under a title looks like prose. It reads like prose. It is chrome, and it
+sets in mono.
+
+The reasoning: it is short enough that the proportional face would be spending the deviation for
+nothing. The readability argument is about paragraphs accumulating — thirty of them, one after
+another. Two sentences do not accumulate. And a title in mono followed immediately by a summary in
+Archivo puts a typeface change two lines apart for no gain.
+
+### Headings inside prose are chrome
+
+An `h2` in the middle of an article body sets in mono, even though everything around it is Archivo.
+
+This one felt wrong until I wrote out why. A heading is a structural label, not running text — it is
+the same object as a section title or a table header, both of which are unambiguously chrome. If a
+heading inside prose switched to Archivo, the boundary would stop being "running text" and start
+being "anything inside an article", which is exactly the widening the deviation is scoped to prevent.
+
+### Code was free
+
+Tailwind's preflight already sets `code`, `kbd`, `samp` and `pre` to the mono family:
+
+```css
+code,
+kbd,
+samp,
+pre {
+  font-family: --theme(--default-mono-font-family, …);
+}
+```
+
+That is an author-origin rule on the element, so it beats an inherited family. Fenced blocks and
+inline code set in JetBrains Mono inside a prose container without anything asking them to. It looks
+like an omission in the element map, which is why there is a comment there saying it is not.
+
+The one thing that _did_ need asking: an ordered list's counter. A numeral is chrome, and without an
+explicit `marker:font-mono` the count sets in the proportional face that the list body legitimately
+inherits.
+
+## The scope is the whole point
+
+The face is reachable through exactly one component and one utility. Archivo is not available to
+buttons, labels, inputs, table headers or badges — not because it would be ugly there, but because
+an exception with no boundary is not an exception.
+
+There is one more consequence I nearly missed. Asking a font loader for a variable axis does not get
+you an italic. The proportional face needed `style: ["normal", "italic"]` requested explicitly,
+because otherwise emphasis in an article resolves to a _synthesised oblique_ — a sheared roman, which
+at prose size is visibly wrong in a way that is hard to name if you are not looking for it. The
+monospace face never needed it, because chrome does not have emphasis in it.
+
+Which is the summary, really. The deviation is not "we use two typefaces". It is a single sentence
+with a written boundary, a named entry point, and a test that fails if the boundary moves. If a
+button label ever starts setting in Archivo, the anchor has stopped holding — and that is a bug, not
+an evolution.

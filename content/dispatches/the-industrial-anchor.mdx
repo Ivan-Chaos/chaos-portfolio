@@ -1,0 +1,95 @@
+Most design systems I have worked in were assembled rather than decided. A colour arrives with a
+component, a radius arrives with a library, and eighteen months later nobody can say what the system
+is — only what it contains. The tokens still resolve. The direction is gone.
+
+So this site names its direction and writes it down. It is called the **anchor**, and there is
+exactly one: Industrial, the register of a ground-station telemetry readout. Monospace for display
+and body. A warm-black ground at `#0B0C0A` with a warm-neutral ramp taking its hue. Flat 1px borders
+instead of shadows. Square corners. One decorative colour, amber, at `#FFB800`.
+
+## Why name it at all
+
+Because a token set only makes sense as a set, and the individual values look like mistakes without
+it.
+
+`--radius` is `0`. Every `--shadow-*` step resolves to `0 0 #0000`. A reader arriving at
+`app/globals.css` without context sees two omissions and fixes them, and each fix is locally
+reasonable — this one card would look better with a corner radius, this one dropdown needs to lift
+off the page. Ten local improvements later the direction has been voted out by people who each
+thought they were making one small change.
+
+Naming the direction turns those from omissions into decisions:
+
+- Square corners are the direction holding, not a `--radius` nobody got round to setting.
+- A transparent shadow scale is what lets vendored components arrive flat with no edits.
+- A neutral hover fill that is not the accent is a distinction, not an oversight.
+
+The payoff is concrete. Roughly sixty third-party components were retethemed for this site, and
+almost none of them needed their geometry touched — they inherit square and flat from two variables.
+
+## The reflex I had to rule out
+
+Space is the subject, and the reflex for space is a violet-to-cyan mesh gradient with a neon glow.
+I know, because that is what I reached for first.
+
+That got ruled out explicitly rather than quietly avoided, along with the two conventional
+alternatives — Aurora Maximalism and retro-futuristic synthwave. Both are dark-native to the point
+of having no credible light mode, which is disqualifying on its own. But the real objection is that
+the gradient is doing the work the structure should be doing. It says "space" without saying anything
+about the work.
+
+The serious runner-up was Swiss: hairline grid rules, a grotesk, International Orange as the accent —
+the actual high-visibility colour of launch hardware — and condensed tabular figures as composition
+elements. It has the better light mode of the two, and for a large component kit it would have been
+the more comfortable choice. It lost on character.
+
+## What one colour costs
+
+Committing to a single decorative colour turns out to be the expensive part, and not for the reason
+I expected.
+
+Amber as a _fill_ is theme-stable. `#FFB800` under near-black ink measures 11.42:1 in both light and
+dark, so a filled button is solved once. Amber as _text_ is not:
+
+```
+#FFB800 on the light ground #F4F5F2  ->  1.57:1
+#FFB800 with white text on it        ->  1.58:1
+```
+
+Both are hard failures. Which means amber cannot be one token. It has to be three — one that fills,
+one that borders at the 3:1 threshold a non-text boundary needs, and one that is safe at prose size
+in both themes, with light mode dropping to a solved value rather than the brand value.
+
+### The part that was learned expensively
+
+Every text token here is solved against the **worst-case surface in its theme, not the page ground**
+— the sunken surface in light, the raised surface in dark.
+
+That rule exists because the first pass did it the obvious way. Values solved against the page
+ground passed on the page, then failed inside an input and on a card, where the ground is a different
+colour. The muted foreground in dark measured 4.67:1 on the page and 4.36:1 on a card — and muted
+text lives on cards constantly.
+
+> Solve against the surface furthest from the text, and every placement is covered. Solve against
+> the ground and you have tested the one case that was never in doubt.
+
+The amber ramp also rotates hue as it darkens, from 80.53 at the anchor down to 65 at the darkest
+steps. That is not a decorative choice. A yellow-amber darkened at constant hue reads olive-brown
+and stops looking related to `#FFB800` at all, which was visible on screen before it was diagnosed.
+Radix's amber scale rotates for the same reason, which was reassuring to discover afterwards and
+would have been more useful to know first.
+
+## Enforcement, not review
+
+The thing I would carry to any other system: none of this is maintained by remembering it.
+
+Contrast is checked rather than reviewed. Storybook's a11y addon runs axe with
+`parameters.a11y.test` set to `"error"`, and the story suite runs twice — once per theme — as two
+separate [Vitest](https://vitest.dev) projects in a real browser. A token change that breaks a ratio
+fails `pnpm check` on the way in. The numbers in the palette are solved values with their measured
+ratios written beside them in a comment, not eyeballed approximations that happened to look fine on
+one monitor.
+
+Which is the actual argument for writing the anchor down. Not documentation for its own sake — a
+direction that is only in someone's head cannot be tested, and a direction that cannot be tested is
+one release away from being gone.

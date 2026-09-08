@@ -1,0 +1,124 @@
+The speed controls from a few days earlier had made the performance problem impossible to ignore.
+Running at ten times speed means ten integration steps per frame, and each step is the full
+all-pairs force summation. A system that was comfortable at one times speed was dropping frames at
+ten, and the presets I had just added were the largest systems yet built.
+
+<img
+  src="/news/planetar/optimisation-profile.svg"
+  width={1600}
+  height={900}
+  alt="A frame profile under load, with the force summation dominating the budget."
+/>
+
+## The shape of the cost
+
+Nothing here is a mystery. The force summation is O(n²) by construction — every body pulls on every
+other — and the number of distinct pairs is:
+
+```
+pairs = n(n−1)/2
+```
+
+Which is the whole problem in one line, because it is quadratic in a place where the input grows:
+
+```
+   n = 10    ->       45 pairs
+   n = 50    ->    1,225 pairs
+   n = 100   ->    4,950 pairs
+   n = 200   ->   19,900 pairs
+```
+
+Multiply by the steps-per-frame multiplier and a 60fps budget of 16.7ms, and 200 bodies at ten times
+speed is 199,000 force evaluations per frame. The arithmetic per pair is trivial. Doing it two
+hundred thousand times, sixty times a second, is not.
+
+## Pairs, not ordered pairs
+
+The first and largest win costs nothing and changes no results. Newton's third law says the force
+body `j` exerts on body `i` is exactly the force `i` exerts on `j`, reversed:
+
+```
+F(i,j) = −F(j,i)
+```
+
+The naive loop computes both. Iterating `j > i` and applying the result to both bodies computes each
+pair once:
+
+```
+for i in 0..n:
+  for j in i+1..n:
+    f = force(i, j)
+    acc[i] += f / m[i]
+    acc[j] -= f / m[j]
+```
+
+Half the work, identical output. It is still O(n²) — the constant is halved, not the growth — but
+halving a constant on the hottest loop in the program is worth having before anything cleverer.
+
+### The square root you do not need
+
+The other free win is in the distance. Written directly, the acceleration term wants `|r|³`, and
+`|r|` is a square root — one of the more expensive operations available, sitting in the innermost
+loop.
+
+But `|r|³` can be written entirely in terms of the _squared_ distance, which is just a dot product:
+
+```
+d² = r_x² + r_y² + ε²
+|r|³ = (d²)^(3/2) = d² · sqrt(d²)
+```
+
+One square root instead of the three you get from computing `|r|` and cubing it, and the softening
+term folds into `d²` for free rather than being applied afterwards.
+
+## Beyond the constant factor
+
+Halving a quadratic is still quadratic, and the honest answer to O(n²) is to stop computing every
+pair. The standard approach is Barnes–Hut: subdivide space into a quadtree, and when a distant
+cluster of bodies is far enough away, treat it as a single body at its centre of mass instead of
+summing its members individually.
+
+"Far enough away" is one ratio — the width of the cell `s` against the distance to it `d`, compared
+against a tolerance `θ`:
+
+```
+s / d < θ    ->    treat the whole cell as one body
+```
+
+which takes the cost from O(n²) to O(n log n). With `θ = 0` it degenerates back to exact all-pairs;
+around `θ ~ 0.5` the error is small and the saving is large.
+
+It is worth knowing where the ceiling is even when you have not built up to it. The cheap wins above
+bought back the frame budget at the system sizes that actually exist in the app, and a quadtree is
+overhead that only starts paying at sizes those presets do not reach yet. The point at which that
+stops being true is a measurement, not a guess — which is why the profile above is the part of this
+work worth keeping.
+
+<img
+  src="/news/planetar/optimisation-traces.svg"
+  width={1600}
+  height={900}
+  alt="Orbital traces drawn at the adjusted width, thin enough to keep long paths readable."
+/>
+
+## The other half: drawing
+
+Some of the same day went into the traces — the paths bodies leave behind them. They had been drawn
+at a fixed width, which is wrong in a view you can zoom: a line that reads well at one scale becomes
+a smear at another, and dozens of overlapping smears make a busy system unreadable.
+
+Dividing the stroke width by the camera scale keeps the trace a constant width _on screen_ rather
+than in world space:
+
+```
+w_screen = w_world / k
+```
+
+There is a cheaper win hiding in the trace buffer too. A trace is a ring of past positions, and there
+is no reason to store every frame's — sampling every few steps and capping the buffer length holds
+both the memory and the per-frame draw call count flat, however long you leave the simulation
+running.
+
+The general lesson is the dull one, and it held here: the expensive part was not where it felt like
+it was. It was in the loop that runs `n²` times per step, and the fixes that mattered were the ones
+that removed work rather than the ones that did the same work faster.

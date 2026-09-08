@@ -1,0 +1,130 @@
+Two commits on the same afternoon: a bare Next.js scaffold, and then the thing I actually wanted to
+write. Between them is the only interesting part of starting a project — the moment you stop
+arranging the tooling and find out whether the idea works at all.
+
+The idea: a browser sandbox where you place bodies, give them mass and a shove, and watch what the
+gravity between them does. Not a visualiser playing back a precomputed path. An actual integrator,
+running every frame, where nothing is scripted and a system either holds together or it does not.
+
+<img
+  src="/news/planetar/first-orbit-two-body.svg"
+  width={1600}
+  height={900}
+  alt="Two bodies and one closed elliptical orbit, plotted on a hairline grid."
+/>
+
+## Why write the engine
+
+The obvious move is to reach for a physics library. I did not, and the reason is narrow enough to
+state plainly: general 2D physics engines are built for _contact_ — rigid bodies, collisions,
+constraints, friction. Almost all of their machinery is solving problems this simulation does not
+have, and none of it is solving the one it does, which is a long-range force acting between every
+pair of bodies at once.
+
+Gravity is the opposite shape of problem. Nothing touches. Everything pulls on everything, forever,
+at any distance. That is a handful of lines of arithmetic and one hard decision about how to step it
+forward in time — and once you have written those lines, a library is a dependency that mostly gets
+in the way.
+
+So `packages/engine` is its own package, with no rendering in it and no knowledge that a canvas
+exists. It takes a system, advances it by a timestep, and hands back the new state.
+
+## The arithmetic
+
+Newton's law of universal gravitation, which is where every gravity simulation starts:
+
+```
+F = G · m1 · m2 / r²
+```
+
+A scalar force is not directly useful, though — I need a vector to add to a velocity. Writing it as
+the force on body 1 from body 2, with `r` the vector between their positions:
+
+```
+r     = p2 − p1
+r_hat = r / |r|
+
+F12   = G · (m1 · m2 / |r|²) · r_hat
+```
+
+Then dividing through by `m1` to get acceleration, and folding the normalisation into the
+denominator — which is why the cube shows up, and why the code looks slightly wrong the first time
+you read it:
+
+```
+a1 = G · m2 · r / |r|³
+```
+
+With more than two bodies it is a plain superposition: every body's acceleration is the sum of the
+pulls from all the others.
+
+```
+a[i] = G · Σ  m[j] (p[j] − p[i]) / |p[j] − p[i]|³
+         j!=i
+```
+
+That summation is the whole engine. It is also the reason performance became its own problem later —
+it is O(n²), and the pair count grows as `n(n−1)/2`, so a system of 200 bodies is doing about 20,000
+force evaluations every single frame.
+
+### The singularity you have to handle
+
+`|r|³` in a denominator has an obvious failure mode: as two bodies approach each other, the
+acceleration goes to infinity. In a continuous universe they would swing past on a hyperbola. In a
+discrete one they teleport, because the timestep let them get far closer than a real trajectory ever
+would, and then the next frame flings one of them off the screen at an implausible speed.
+
+The standard fix is a softening length — a small constant that quietly puts a floor under the
+distance:
+
+```
+a[i] = G · Σ  m[j] (p[j] − p[i]) / (|p[j] − p[i]|² + ε²)^(3/2)
+         j!=i
+```
+
+At normal separations `ε²` is negligible and the result is unchanged. At very close range it caps
+the force instead of letting it run away. It is not physically truthful, and it is the difference
+between a simulation you can leave running and one that detonates.
+
+## Stepping it forward
+
+Having an acceleration is only half of it. The other half is turning it into motion, and the naive
+choice is worse than it looks.
+
+Explicit Euler — read the acceleration, move the velocity, then move the position with the _old_
+velocity — is the version everybody writes first:
+
+```
+p[n+1] = p[n] + v[n] Δt
+v[n+1] = v[n] + a[n] Δt
+```
+
+It does not conserve energy. A circular orbit under explicit Euler spirals outward, steadily, forever
+— not because of a bug but because of the method. Swapping two lines so the position update uses the
+_new_ velocity gives semi-implicit Euler, which is symplectic and keeps orbits closed:
+
+```
+v[n+1] = v[n] + a[n] Δt
+p[n+1] = p[n] + v[n+1] Δt
+```
+
+Same cost, dramatically better behaviour. It is the cheapest correctness win in the whole project.
+
+<img
+  src="/news/planetar/first-orbit-field.svg"
+  width={1600}
+  height={900}
+  alt="The gravitational field sampled across a grid, with vector magnitude falling off from the central mass."
+/>
+
+## What a first prototype is for
+
+It looked terrible. There was one speed, no zoom, no way to pan, and placing a body meant editing a
+literal in the source. None of that mattered, because the question a prototype exists to answer is
+narrower: does a system of bodies given plausible initial conditions settle into orbits that stay
+closed for minutes at a time, or does it fall apart?
+
+It stayed closed. Everything after this is interface, correctness at the edges, and making it fast
+enough to be worth watching.
+
+The source is on [GitHub](https://github.com/Ivan-Chaos/planetar-fe).

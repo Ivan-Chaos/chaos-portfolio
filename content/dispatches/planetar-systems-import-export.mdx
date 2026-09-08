@@ -1,0 +1,104 @@
+Every good configuration in the simulator was, until this point, unrepeatable. You would nudge bodies
+around until something interesting settled into place, watch it for a while, and then lose it — to a
+refresh, to a stray click, to changing one mass to see what happened.
+
+That is a bad property for a sandbox. If you cannot save a state you cannot compare two of them, and
+comparing two of them is most of what the thing is for.
+
+<img
+  src="/news/planetar/systems-export.svg"
+  width={1600}
+  height={900}
+  alt="A system being exported, with the serialised body list beside the running simulation."
+/>
+
+## A system is just its initial conditions
+
+The useful realisation is that there is almost nothing to save. A gravitational system is entirely
+determined by the state of its bodies at one instant — position, velocity, mass — plus the constants
+the engine runs under. Everything after that instant is derived. The traces, the orbits, the near
+misses: none of it is state, all of it is consequence.
+
+So the export is a flat list:
+
+```
+System
+  +-- meta      name, a note, the schema version
+  +-- constants G, ε (softening), Δt
+  +-- bodies[]  { id, mass, radius, position {x,y}, velocity {x,y}, colour }
+```
+
+Small enough to read, small enough to hand-edit, and small enough to paste into a message. That last
+one matters more than it sounds — a system you can send to someone is a system you can ask a question
+about.
+
+### Versioning it from the start
+
+The `schema version` field went in before there was any second version to distinguish, which felt
+like ceremony at the time. It is not. The alternative is discovering, three format changes later,
+that you have files in four shapes and no way to tell them apart except by guessing at which keys are
+present. One integer now is much cheaper than a heuristic later.
+
+## Units, and the part that bites
+
+The awkward question an export forces you to answer is what the numbers _mean_.
+
+Real values are unusable directly. Earth's mass is `5.97 x 10^24 kg`; the gravitational constant is
+`6.674 x 10^-11`. Multiply those in float64 across a few hundred pairs per frame and you are burning
+precision on exponent bookkeeping for no benefit — the simulation does not care about kilograms, only
+about ratios.
+
+So the engine runs in its own units, and `G` absorbs the scaling. Picking a mass unit `M`, a length
+unit `L` and a time unit `T`, the simulation constant is:
+
+```
+G_sim = G_real · (M · T²) / L³
+```
+
+Which means `G` is not a constant of nature in the file — it is part of the file's units, and it has
+to travel with the bodies. An export that saved masses and positions but not `G` would be a system
+that replays differently depending on what the app happened to be set to when you opened it.
+
+<img
+  src="/news/planetar/systems-presets.svg"
+  width={1600}
+  height={900}
+  alt="The predefined systems menu, listing several starting configurations."
+/>
+
+## Predefined systems
+
+Once import existed, presets were nearly free — a preset is an import that ships with the app. What
+they cost is _choosing_ them, which turned out to be the real work.
+
+A preset has one job: to show something the simulation does that you would not have found by placing
+bodies at random. Two bodies falling together shows almost nothing. What earns a slot is a
+configuration with behaviour in it:
+
+- **A binary pair**, to show that two bodies orbit a shared barycentre rather than one orbiting the
+  other. The barycentre is worth writing down because it is the thing people misremember:
+
+  ```
+  R = (m1p1 + m2p2) / (m1 + m2)
+  ```
+
+- **A star with several planets**, which is the case people expect, and the one that makes the
+  speed controls worth having.
+- **A three-body configuration**, because chaos is the honest headline result of this whole exercise:
+  two systems started a pixel apart diverge completely, and there is no closed-form solution to
+  appeal to.
+
+Circular starting velocities come from setting gravitational and centripetal acceleration equal:
+
+```
+GM/r² = v²/r    ->    v = sqrt(GM / r)
+```
+
+Perpendicular to the radius, and the system holds. A few percent off and you get an ellipse instead —
+which is often the more interesting preset.
+
+## What it changed
+
+Import and export sound like plumbing, and mostly they are. But they turned the simulator from
+something you play with into something you can take notes in: save a state, change one mass, load the
+original back, and see the difference. That is the difference between a toy and an instrument.

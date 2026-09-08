@@ -1,0 +1,113 @@
+A simulation you cannot steer is a screensaver. The engine had been producing correct orbits for a
+day, and watching them was still unpleasant: one fixed viewport, one speed, and no way to follow
+anything that left the frame.
+
+So this was a day of controls. More speed options, map drag, better zoom, and an arcade mode. None of
+it is physics, and all of it is the difference between a demo and something you actually sit with.
+
+<img
+  src="/news/planetar/controls-zoom.svg"
+  width={1600}
+  height={900}
+  alt="The simulation zoomed in on a two-body pair, with the surrounding grid scaled to match."
+/>
+
+## Zoom that keeps the point under the cursor
+
+Naive zoom scales about the origin, which means the thing you were looking at slides away exactly
+when you try to look at it more closely. The behaviour people expect is that the point under the
+pointer stays under the pointer.
+
+That is one equation. Given a screen point `s`, a camera offset `c`, and a scale `k`, the world point
+under the cursor is:
+
+```
+w = (s − c) / k
+```
+
+Zooming means picking a new scale `k'` and then solving for the offset that keeps `w` mapping to the
+same `s`:
+
+```
+c' = s − w · k'
+   = s − ((s − c) / k) · k'
+```
+
+Which reduces to a form that is much easier to read in code:
+
+```
+c' = s − (s − c) · (k' / k)
+```
+
+Panning is the easy half — accumulate the pointer delta straight into `c`:
+
+```
+c' = c + (s[n] − s[n-1])
+```
+
+Zoom steps multiply rather than add, so each notch of the wheel changes the view by the same
+proportion regardless of how far in you already are:
+
+```
+k' = k · z^n        z ~ 1.1,  n = wheel notches
+```
+
+Clamped at both ends, because a scale of zero is a division by zero and a scale of ten thousand is a
+single pixel filling the screen.
+
+## Speed, and why it is not one slider
+
+The tempting way to add a speed control is to multiply the timestep. It is also the way to break the
+integrator: `Δt` is the one parameter the whole method's stability rests on, and doubling it does not
+run the simulation twice as fast so much as make it twice as wrong. Orbits that were closed start
+precessing; close encounters stop resolving.
+
+The honest lever is the number of steps per frame, not the size of them:
+
+```
+per frame:  repeat N times ->  step(Δt)
+```
+
+`Δt` stays where the integrator is well behaved, and speed becomes `N`. Ten times the speed is ten
+times the work rather than ten times the error — which is a real cost, and it is a large part of why
+optimisation became its own problem a few days later.
+
+<img
+  src="/news/planetar/controls-arcade.svg"
+  width={1600}
+  height={900}
+  alt="Arcade mode: one body under direct thrust control, its trace curving away from the others."
+/>
+
+## Arcade mode
+
+The one control that is not a camera control. Arcade mode hands you one body and lets you apply
+thrust to it directly, while everything else keeps obeying the same rules it always did.
+
+It is a single extra term in that body's acceleration:
+
+```
+a[i] = a_gravity(i) + a_thrust
+```
+
+What makes it worth having is not that it is a game. It is that it turns the simulation into an
+instrument you can ask questions with. Fire retrograde at periapsis and watch the far side of the
+orbit drop — that is one keypress, and it teaches more about orbital mechanics than any static
+diagram, because you get the counterintuitive part immediately: thrusting _forward_ raises the orbit
+on the opposite side, not the side you are on.
+
+The vis-viva equation is the reason, and it is worth writing down because it explains the whole
+feeling of flying in it:
+
+```
+v² = GM (2/r − 1/a)
+```
+
+Speed depends on where you are (`r`) and on the size of the orbit (`a`). Adding speed cannot change
+where you are, so it has to change `a` — the orbit grows, and it grows away from you.
+
+## What this bought
+
+Nothing here changed a single number the engine produces. It changed whether the numbers are worth
+watching, which turned out to be the thing standing between a working integrator and a project I
+wanted to keep opening.

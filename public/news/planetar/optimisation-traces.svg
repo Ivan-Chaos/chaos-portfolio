@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" role="img" aria-label="Traces at the adjusted width">
+  <rect width="1600" height="900" fill="#0B0C0A"/>
+  <g stroke="#2E312C" stroke-width="1">
+    <line x1="64" y1="0" x2="64" y2="900"/>
+    <line x1="128" y1="0" x2="128" y2="900"/>
+    <line x1="192" y1="0" x2="192" y2="900"/>
+    <line x1="256" y1="0" x2="256" y2="900"/>
+    <line x1="320" y1="0" x2="320" y2="900"/>
+    <line x1="384" y1="0" x2="384" y2="900"/>
+    <line x1="448" y1="0" x2="448" y2="900"/>
+    <line x1="512" y1="0" x2="512" y2="900"/>
+    <line x1="576" y1="0" x2="576" y2="900"/>
+    <line x1="640" y1="0" x2="640" y2="900"/>
+    <line x1="704" y1="0" x2="704" y2="900"/>
+    <line x1="768" y1="0" x2="768" y2="900"/>
+    <line x1="832" y1="0" x2="832" y2="900"/>
+    <line x1="896" y1="0" x2="896" y2="900"/>
+    <line x1="960" y1="0" x2="960" y2="900"/>
+    <line x1="1024" y1="0" x2="1024" y2="900"/>
+    <line x1="1088" y1="0" x2="1088" y2="900"/>
+    <line x1="1152" y1="0" x2="1152" y2="900"/>
+    <line x1="1216" y1="0" x2="1216" y2="900"/>
+    <line x1="1280" y1="0" x2="1280" y2="900"/>
+    <line x1="1344" y1="0" x2="1344" y2="900"/>
+    <line x1="1408" y1="0" x2="1408" y2="900"/>
+    <line x1="1472" y1="0" x2="1472" y2="900"/>
+    <line x1="1536" y1="0" x2="1536" y2="900"/>
+    <line x1="0" y1="64" x2="1600" y2="64"/>
+    <line x1="0" y1="128" x2="1600" y2="128"/>
+    <line x1="0" y1="192" x2="1600" y2="192"/>
+    <line x1="0" y1="256" x2="1600" y2="256"/>
+    <line x1="0" y1="320" x2="1600" y2="320"/>
+    <line x1="0" y1="384" x2="1600" y2="384"/>
+    <line x1="0" y1="448" x2="1600" y2="448"/>
+    <line x1="0" y1="512" x2="1600" y2="512"/>
+    <line x1="0" y1="576" x2="1600" y2="576"/>
+    <line x1="0" y1="640" x2="1600" y2="640"/>
+    <line x1="0" y1="704" x2="1600" y2="704"/>
+    <line x1="0" y1="768" x2="1600" y2="768"/>
+    <line x1="0" y1="832" x2="1600" y2="832"/>
+    <line x1="0" y1="896" x2="1600" y2="896"/>
+  </g>
+    <ellipse cx="800" cy="450" rx="259" ry="162" fill="none" stroke="#6B6E68" stroke-width="1.25" />
+    <ellipse cx="800" cy="450" rx="418" ry="261" fill="none" stroke="#6B6E68" stroke-width="1.25" stroke-dasharray="6 5"/>
+    <ellipse cx="800" cy="450" rx="605" ry="378" fill="none" stroke="#6B6E68" stroke-width="1.25" />
+    <circle cx="1059" cy="450" r="5" fill="#6B6E68"/>
+    <circle cx="382" cy="450" r="4" fill="#6B6E68"/>
+    <circle cx="800" cy="288" r="3.5" fill="#6B6E68"/>
+  <circle cx="800" cy="450" r="9" fill="#FFB800"/>
+  <g stroke="#6B6E68" stroke-width="1.5" fill="none">
+    <path d="M32 32 h44 M32 32 v44"/>
+    <path d="M1568 32 h-44 M1568 32 v44"/>
+    <path d="M32 868 h44 M32 868 v-44"/>
+    <path d="M1568 868 h-44 M1568 868 v-44"/>
+  </g>
+  <text x="800" y="822" fill="#6B6E68" font-family="ui-monospace, monospace" font-size="15" letter-spacing="2.4" text-anchor="middle">PLACEHOLDER — REPLACE WITH SCREENSHOT</text>
+  <text x="800" y="850" fill="#6B6E68" font-family="ui-monospace, monospace" font-size="19" text-anchor="middle">Traces at the adjusted width</text>
+</svg>

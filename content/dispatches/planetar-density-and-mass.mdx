@@ -1,0 +1,113 @@
+Until this point a body in Planetar had a mass and a radius, and they had nothing to do with each
+other. You could build a pea-sized object with the mass of a star, or a gas giant that weighed
+nothing. The simulation ran perfectly well — the integrator only ever reads mass — but the picture
+lied, because the thing you see on screen is the radius and the thing doing the physics is the mass.
+
+That is a bad property for a tool meant to build intuition. This was the work of tying the two
+together, and then rebuilding the presets so their numbers mean something.
+
+<img
+  src="/news/planetar/density-editor.svg"
+  width={1600}
+  height={900}
+  alt="The planet editor, with a density control alongside mass and radius."
+/>
+
+## Density is the missing third term
+
+Mass and radius are not independent quantities. Density is what relates them, and once it is in the
+model the editor stops needing you to keep two numbers plausible by hand:
+
+```
+ρ = m / V
+```
+
+For a sphere:
+
+```
+V = (4/3)πr³
+
+m = ρ · (4/3)πr³
+```
+
+Which rearranges to the form the editor actually uses — pick a mass and a material, get a radius:
+
+```
+r = (3m / 4πρ)^(1/3)
+```
+
+The cube root is the whole reason planets do not look the way people expect. Radius scales as the
+_cube root_ of mass at fixed density, so a body a thousand times heavier is only ten times wider.
+Jupiter is around 318 Earth masses and about 11 Earth radii — which is exactly `318^(1/3) ~ 6.8`
+adjusted for the fact that it is much less dense. That relationship is impossible to hold in your
+head and trivial to hold in a formula, which is a good argument for putting it in the tool.
+
+### The part I have not got right yet
+
+Real density is not a constant per body, and this is where the model is still honestly wrong.
+
+A rocky planet is roughly 5.5 g/cm³ and a gas giant is roughly 1.3 — but a gas giant is not uniformly
+1.3 anywhere. It is a compressible envelope over a dense core, and its _average_ density falls as it
+gets larger while its central density climbs. Past a certain mass, adding more material barely
+changes the radius at all: Jupiter and a body several times its mass are nearly the same size,
+because gravity compresses the interior as fast as you add to it.
+
+Doing that properly means integrating hydrostatic equilibrium against an equation of state:
+
+```
+dP/dr = −G · m(r) · ρ(r) / r²
+dm/dr = 4πr² ρ(r)
+```
+
+which is a genuinely different project from a gravity sandbox. What is in there now is a per-body
+density with sensible per-class defaults — rocky, icy, gaseous, stellar — which gets the _ordering_
+and the rough proportions right and does not pretend to be more than that. The commit message for
+this one says "still need to figure out how to do the densities right", and that is accurate.
+
+<img
+  src="/news/planetar/density-system.svg"
+  width={1600}
+  height={900}
+  alt="A mass-realistic preset system, with body sizes derived from mass and density."
+/>
+
+## Rebuilding the presets around real ratios
+
+With density in place, the predefined systems could stop being aesthetic arrangements and start being
+scaled ones. What matters is not absolute values — the engine runs in its own units — but that the
+_ratios_ between bodies hold.
+
+The one that reframes everything is the mass ratio to the central star. In the real solar system,
+every planet combined is about 0.13% of the Sun's mass. Which is why the two-body approximation works
+so well, and why a system of planets that all noticeably perturb each other is a system with
+implausible masses in it.
+
+Distances have the same problem in the other direction, and it is the reason every diagram of the
+solar system you have ever seen is a lie: the orbits are so much larger than the bodies that an
+honest rendering is a blank page with a few invisible dots. Presets here compress distance and keep
+mass ratios, which is the trade that keeps them watchable while keeping the physics recognisable.
+
+Orbital velocities come out of the masses rather than being tuned by hand:
+
+```
+v = sqrt(GM / r)                 circular
+v = sqrt(GM (2/r − 1/a))         vis-viva, for elliptical starts
+```
+
+Getting these from `M` rather than by eye is what makes a preset stable on load. Before this, a
+system that looked settled would slowly unwind, because the starting velocities were approximately
+right rather than derived.
+
+There is a satisfying check that falls out for free. Kepler's third law says the square of the period
+goes as the cube of the semi-major axis:
+
+```
+T² = 4π²a³ / GM
+```
+
+Nothing in the engine implements that — it only ever sums forces. So when a preset's outer bodies come
+back around at the intervals Kepler predicts, that is the integrator agreeing with a law it was never
+told about. Which is the most reassuring thing a simulation can do.
+
+The source is on [GitHub](https://github.com/Ivan-Chaos/planetar-fe), and it is running at
+[ivan-chaos.github.io/planetar-fe](https://ivan-chaos.github.io/planetar-fe/).

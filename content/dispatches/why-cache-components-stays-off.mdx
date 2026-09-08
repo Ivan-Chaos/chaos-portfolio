@@ -1,0 +1,80 @@
+Next 16 ships Cache Components behind a config flag. One line in `next.config.ts` and you get
+`'use cache'`, `cacheLife`, `cacheTag`, `updateTag` and Partial Prerendering.
+
+This site does not set it. The file says so, with a pointer to the decision record:
+
+```ts
+const nextConfig: NextConfig = {
+  // `cacheComponents` is intentionally NOT set — see
+  // docs/adr/0002-cache-components-stays-off.md before enabling it.
+};
+```
+
+The reasoning is more interesting than the feature, because it is a case where the honest answer to
+"should I adopt this" is "there is nothing here for it to do".
+
+## The argument
+
+This site fetches no data. Not "fetches a little" — none. Every fact on it lives in a typed
+TypeScript module under `content/`, imported at build time. There is no CMS, no API, no database, no
+`fetch` anywhere in the app directory.
+
+Cache Components is a caching model. Its whole value is deciding what gets cached, for how long, and
+what invalidates it. Applied to a site with nothing to cache, it has no upside at all.
+
+And it has a downside, which the upgrade guide states plainly: enabling it
+
+> is not a rename-only change: it can surface build errors for uncached data outside of `Suspense`.
+
+So the trade is a working build against a feature with no work to do. That is not a close call. It is
+only tempting because the flag is new, and new flags feel like they ought to be on.
+
+## The part that actually bites
+
+Deciding not to enable it was easy. The consequence I did not see coming is that **the decision
+changes which documentation applies**.
+
+Next's bundled docs contain two caching guides:
+
+1. `01-app/01-getting-started/08-caching.md` — the default landing page for caching, describing the
+   Cache Components model.
+2. `01-app/02-guides/caching-without-cache-components.md` — the model that applies when the flag is
+   off.
+
+The first one is where you land. It is the obvious file, it is the one search finds, and every word
+of it describes a model this project does not use. Reading it is the single easiest wrong turn
+available in this codebase, and the mistake is invisible: the code you write from it is coherent,
+well-formed, and does not apply.
+
+That is why the pointer lives in `next.config.ts` and the wrong-turn warning lives in the project's
+agent instructions. The decision itself is one paragraph. The navigational hazard it creates needed
+more words than the decision did.
+
+## What is gained by leaving it off
+
+Not nothing, as it turns out.
+
+Cache Components _removes_ route segment configs, and two of them are load-bearing here:
+
+- `dynamicParams` — the news routes set it to `false`, so a slug outside `generateStaticParams`
+  returns a 404 at the router rather than being rendered on demand. Every article is known at build
+  time, so a slug outside that list is never legitimate.
+- `revalidate`, `dynamic` and `fetchCache` — unused today, but available.
+
+There is a small pleasure in a decision whose consequences section reads _"still available"_ rather
+than _"no longer possible"_.
+
+## When to revisit
+
+The condition is written into the record, because "revisit later" without a trigger means never:
+
+Revisit when the site gains real data fetching — a CMS, a git-backed content layer, or an API. That
+is the point at which partial prerendering starts paying for the migration, and the build errors the
+guide warns about become worth fixing rather than worth avoiding.
+
+Adding this blog was the first thing that came close, and it turned out not to count. The bodies are
+MDX compiled at build time and the metadata is a TypeScript array, so the whole feature is static.
+The flag stays off — [writing the direction down](/news/the-industrial-anchor) is the same habit applied
+to a different kind of question, and the
+[Next.js upgrade guide](https://nextjs.org/docs/app/guides/upgrading/version-16) is where to read
+what the flag actually does.
